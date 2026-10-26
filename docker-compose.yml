@@ -1,0 +1,30 @@
+name: warebase
+# Local development only: MySQL 8 + phpMyAdmin.
+# Start: docker compose up -d   Stop: docker compose down
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: warebase
+      MYSQL_USER: app
+      MYSQL_PASSWORD: secret
+    ports:
+      - "127.0.0.1:3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+    ports:
+      - "127.0.0.1:8080:80"
+    depends_on:
+      - mysql
+
+volumes:
+  mysql-data:

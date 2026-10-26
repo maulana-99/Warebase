@@ -33,10 +33,43 @@ Aplikasi dibangun dengan arsitektur **Model-View-Controller (MVC)** menggunakan 
 
 ## Kebutuhan Sistem
 
-- PHP 8.3 atau lebih baru, dengan extension `pdo_mysql`, `mbstring`, `openssl`, `intl`, `bcmath`
+Project ini bisa dijalankan di **Windows, macOS, maupun Linux**.
+
+- PHP 8.3 atau lebih baru, dengan extension `pdo_mysql`, `mbstring`, `openssl`, `intl`, `zip`, `bcmath`
 - Composer 2
 - Node.js 20+ dan npm
-- MySQL 8, melalui Docker **atau** instalasi lokal (XAMPP, Laragon, MySQL Server)
+- MySQL 8, melalui Docker **atau** instalasi lokal
+
+Cek versi yang terpasang:
+
+```bash
+php -v
+composer -V
+node -v
+```
+
+### Rekomendasi instalasi per sistem operasi
+
+| Sistem operasi | Cara termudah |
+|---|---|
+| Windows | [Laragon](https://laragon.org) (sudah berisi PHP, MySQL, Composer, Node.js) atau [Laravel Herd](https://herd.laravel.com) + MySQL |
+| Windows dengan XAMPP | Bisa dipakai, **asalkan versi PHP-nya 8.3 atau lebih baru**. Lihat catatan XAMPP di bawah. |
+| macOS | [Laravel Herd](https://herd.laravel.com) atau Homebrew (`brew install php composer node mysql`) |
+| Linux | Package manager distro (`apt`, `dnf`, `pacman`) untuk PHP, Composer, dan Node.js; MySQL lewat Docker |
+
+**Catatan XAMPP (Windows):**
+
+1. Pastikan PHP bawaan XAMPP versi 8.3+. Cek dengan `php -v`. Jika versinya lebih lama, gunakan Laragon atau Herd.
+2. Aktifkan extension yang dibutuhkan. Buka `C:\xampp\php\php.ini`, hapus tanda `;` di depan baris berikut, lalu restart Apache/terminal:
+
+```ini
+extension=intl
+extension=zip
+extension=pdo_mysql
+```
+
+3. Install [Composer for Windows](https://getcomposer.org/download/) dan [Node.js](https://nodejs.org) secara terpisah.
+4. Jalankan MySQL dari XAMPP Control Panel. Apache tidak perlu dinyalakan, karena aplikasi dijalankan dengan `php artisan serve`.
 
 ## Cara Menjalankan di Komputer Lokal
 
@@ -56,31 +89,29 @@ npm install
 
 ### 3. Siapkan file environment
 
+macOS / Linux / Git Bash / PowerShell:
+
 ```bash
 cp .env.example .env
 php artisan key:generate
 ```
 
-Di Windows (Command Prompt), gunakan `copy .env.example .env`.
+Windows Command Prompt (CMD):
+
+```bat
+copy .env.example .env
+php artisan key:generate
+```
 
 ### 4. Siapkan database MySQL
 
 Pilih **salah satu** cara berikut.
 
-**Opsi A: Docker (disarankan)**
+**Opsi A: MySQL lokal (XAMPP, Laragon, Herd, MySQL Server)**
 
-```bash
-docker compose up -d
-```
-
-Perintah ini menjalankan MySQL 8 dan phpMyAdmin. Isi `.env` bawaan sudah sesuai, jadi tidak perlu diubah.
-
-- phpMyAdmin: http://localhost:8080 (user `app`, password `secret`)
-
-**Opsi B: MySQL lokal (XAMPP, Laragon, dan sejenisnya)**
-
-1. Buat database baru bernama `warebase`.
-2. Sesuaikan koneksi database di file `.env`, misalnya untuk XAMPP:
+1. Nyalakan MySQL (misalnya lewat XAMPP Control Panel atau Laragon).
+2. Buat database baru bernama `warebase`, misalnya lewat phpMyAdmin (http://localhost/phpmyadmin).
+3. Sesuaikan koneksi database di file `.env`. Contoh untuk XAMPP/Laragon (user `root` tanpa password):
 
 ```env
 DB_CONNECTION=mysql
@@ -90,6 +121,18 @@ DB_DATABASE=warebase
 DB_USERNAME=root
 DB_PASSWORD=
 ```
+
+**Opsi B: Docker (Windows, macOS, Linux)**
+
+Butuh [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows/macOS) atau Docker Engine (Linux). Pastikan port `3306` tidak sedang dipakai MySQL lain (misalnya MySQL XAMPP).
+
+```bash
+docker compose up -d
+```
+
+Perintah ini menjalankan MySQL 8 dan phpMyAdmin. Isi `.env` bawaan sudah sesuai untuk Docker, jadi tidak perlu diubah.
+
+- phpMyAdmin: http://localhost:8080 (user `app`, password `secret`)
 
 ### 5. Buat tabel dan isi data contoh
 
@@ -107,6 +150,17 @@ php artisan serve
 ```
 
 Buka http://localhost:8000 di browser.
+
+## Masalah yang Sering Terjadi
+
+| Pesan error | Solusi |
+|---|---|
+| `could not find driver` | Extension `pdo_mysql` belum aktif. Aktifkan di `php.ini`. |
+| `SQLSTATE[HY000] [2002] Connection refused` | MySQL belum menyala, atau `DB_HOST`/`DB_PORT` di `.env` salah. |
+| `SQLSTATE[HY000] [1045] Access denied` | `DB_USERNAME`/`DB_PASSWORD` di `.env` tidak sesuai dengan MySQL yang dipakai. |
+| `Unknown database 'warebase'` | Database `warebase` belum dibuat. |
+| `Vite manifest not found` | Jalankan `npm install` lalu `npm run build`. |
+| `Your requirements could not be resolved` saat `composer install` | Versi PHP di bawah 8.3, atau extension `intl`/`zip` belum aktif. |
 
 ## Akun Login Contoh
 

@@ -218,6 +218,8 @@ php artisan test
 
 ## Deploy ke Server (Dokploy)
 
+Panduan lengkap langkah demi langkah ada di [docs/deploy-dokploy.md](docs/deploy-dokploy.md). Ringkasannya:
+
 Aplikasi dideploy sebagai satu container dari `Dockerfile` (PHP 8.5.12 + Apache; CSS/JS di-build saat image dibuat, jadi server tidak butuh Node.js). Database MySQL berjalan sebagai service terpisah di Dokploy.
 
 1. **Database**: di Dokploy buat *Database → MySQL* dengan image `mysql:8.4`, database `warebase`, user `warebase`, password hasil generate. Jangan isi *External Port* agar database tidak terbuka ke internet. Klik **Deploy**.
@@ -242,7 +244,7 @@ DB_PASSWORD=...           # password database dari Dokploy
 ```
 
 4. **Domain**: tambahkan domain di tab *Domains* dengan HTTPS (Let's Encrypt), lalu **Deploy**. Setiap container dijalankan, migrasi database berjalan otomatis (`docker/entrypoint.sh`).
-5. **Data contoh** (sekali saja): buka tab *Terminal/Advanced* aplikasi dan jalankan `php artisan db:seed --force` untuk membuat akun contoh dan stok awal.
+5. **Data contoh** (sekali saja): buka tab *Terminal/Advanced* aplikasi dan jalankan `artisan db:seed --force` untuk membuat akun contoh dan stok awal.
 
 Pengaturan keamanan di image: `APP_DEBUG=false`, `expose_php=Off`, `session.upload_progress.enabled=0`, header keamanan Apache, dan proxy yang dipercaya hanya alamat jaringan privat (Traefik Dokploy), bisa diubah lewat `TRUSTED_PROXIES`.
 

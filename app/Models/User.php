@@ -50,6 +50,14 @@ class User extends Authenticatable
     }
 
     /**
+     * @return HasMany<ActivityLog, $this>
+     */
+    public function activityLogs(): HasMany
+    {
+        return $this->hasMany(ActivityLog::class);
+    }
+
+    /**
      * Transactions approved or rejected by this user.
      *
      * @return HasMany<Transaction, $this>

@@ -4,6 +4,103 @@
 @source '../../storage/framework/views/*.php';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    --font-sans: 'Urbanist', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Surfaces: page, app shell, cards, raised controls. */
+    --color-canvas: #2a2a2d;
+    --color-shell: #050506;
+    --color-panel: #17171b;
+    --color-raised: #26262c;
+    --color-line: #2e2e35;
+
+    /* Text. */
+    --color-ink: #f5f5f7;
+    --color-muted: #9a9aa3;
+    --color-subtle: #6b6b74;
+
+    /* Accents (pastel status colors from the design). */
+    --color-brand: #1747e0;
+    --color-sky: #7c9cf5;
+    --color-peach: #f2a06c;
+    --color-sun: #fde68a;
+    --color-mint: #86efac;
+    --color-rose: #f87171;
+}
+
+/* Interaction feedback shared by all buttons: hover brightens, press shrinks, busy dims. */
+@utility btn-base {
+    @apply inline-flex items-center justify-center gap-2 transition duration-150 ease-out select-none active:scale-[0.96] aria-busy:pointer-events-none aria-busy:opacity-70 disabled:active:scale-100;
+}
+
+@layer base {
+    html {
+        color-scheme: dark;
+    }
+
+    body {
+        @apply bg-canvas font-sans text-ink antialiased;
+    }
+
+    :focus-visible {
+        @apply outline-2 outline-offset-2 outline-sky;
+    }
+
+    /* Tailwind v4 resets buttons to the default cursor; restore the pointer for everything clickable. */
+    button:not(:disabled),
+    [role='button'],
+    select,
+    summary,
+    label[for],
+    input[type='checkbox'],
+    input[type='radio'],
+    input[type='date'] {
+        cursor: pointer;
+    }
+
+    button:disabled,
+    [aria-disabled='true'] {
+        cursor: not-allowed;
+    }
+}
+
+@layer components {
+    .card {
+        @apply rounded-3xl bg-panel p-5;
+    }
+
+    .icon-btn {
+        @apply btn-base size-10 rounded-full bg-raised text-ink hover:bg-line hover:text-white active:bg-line/70;
+    }
+
+    .btn-primary {
+        @apply btn-base rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-shell hover:bg-white hover:shadow-[0_6px_24px_-8px_rgb(255_255_255/0.45)] active:bg-ink/85 disabled:opacity-50;
+    }
+
+    .btn-secondary {
+        @apply btn-base rounded-2xl bg-raised px-5 py-3 text-sm font-medium text-ink hover:bg-line active:bg-line/70;
+    }
+
+    .input {
+        @apply w-full rounded-2xl border border-transparent bg-raised px-4 py-3 text-sm text-ink placeholder:text-subtle focus:border-sky focus:outline-none;
+    }
+
+    .label {
+        @apply mb-1.5 block text-sm font-medium text-muted;
+    }
+
+    .badge {
+        @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;
+    }
+}
+
+@layer components {
+    .btn-danger {
+        @apply bg-rose text-shell hover:bg-rose/85 hover:shadow-[0_6px_24px_-8px_rgb(248_113_113/0.6)] active:bg-rose/75;
+    }
+
+    /* Spinner shown inside a button while its form is submitting. */
+    .spinner {
+        @apply size-4 animate-spin rounded-full border-2 border-current border-r-transparent;
+    }
 }

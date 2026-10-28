@@ -23,7 +23,16 @@
                                     <p class="font-semibold">{{ $item->product->name }}</p>
                                     <p class="text-xs text-subtle">{{ $item->product->sku }}</p>
                                 </td>
-                                <td class="px-5 py-4">{{ $item->quantity }} {{ $item->product->unit }}</td>
+                                <td class="px-5 py-4">
+                                    @if ($transaction->type === \App\Enums\TransactionType::Adjustment)
+                                        {{-- Adjustments store the absolute difference; the sign comes from before/after. --}}
+                                        <span @class(['font-semibold', 'text-success' => $item->stock_after > $item->stock_before, 'text-danger' => $item->stock_after < $item->stock_before])>
+                                            {{ $item->stock_after > $item->stock_before ? '+' : '−' }}{{ $item->quantity }}
+                                        </span> {{ $item->product->unit }}
+                                    @else
+                                        {{ $item->quantity }} {{ $item->product->unit }}
+                                    @endif
+                                </td>
                                 @if ($transaction->isPending())
                                     <td class="px-5 py-4">
                                         {{ $item->product->stock }}
@@ -60,7 +69,7 @@
                     <div><dt class="text-muted">Alasan penolakan</dt><dd class="mt-1 whitespace-pre-line text-danger">{{ $transaction->reject_reason }}</dd></div>
                 @endif
                 @if ($transaction->note)
-                    <div><dt class="text-muted">Catatan</dt><dd class="mt-1 whitespace-pre-line">{{ $transaction->note }}</dd></div>
+                    <div><dt class="text-muted">{{ $transaction->type === \App\Enums\TransactionType::Adjustment ? 'Alasan' : 'Catatan' }}</dt><dd class="mt-1 whitespace-pre-line">{{ $transaction->note }}</dd></div>
                 @endif
             </dl>
             @if ($canDecide ?? false)

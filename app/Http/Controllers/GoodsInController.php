@@ -11,6 +11,7 @@ use App\Models\Transaction;
 use App\Services\StockService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 /**
@@ -57,7 +58,8 @@ class GoodsInController extends Controller
                 $request->validated('items'),
             );
         } catch (StockException $e) {
-            return back()->withInput()->with('error', $e->getMessage());
+            // A validation error (422 in the modal) keeps everything the user typed.
+            throw ValidationException::withMessages(['items' => $e->getMessage()]);
         }
 
         return redirect()->route('goods-in.show', $transaction)

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdjustmentController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GoodsInController;
@@ -48,6 +49,10 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin')->group(function () {
         Route::resource('users', UserController::class)->except('show');
         Route::post('/requests/{transaction}/approve', [GoodsRequestController::class, 'approve'])->whereNumber('transaction')->name('requests.approve');
+        Route::get('/adjustments', [AdjustmentController::class, 'index'])->name('adjustments.index');
+        Route::get('/adjustments/create', [AdjustmentController::class, 'create'])->name('adjustments.create');
+        Route::post('/adjustments', [AdjustmentController::class, 'store'])->name('adjustments.store');
+        Route::get('/adjustments/{transaction}', [AdjustmentController::class, 'show'])->whereNumber('transaction')->name('adjustments.show');
         Route::post('/requests/{transaction}/reject', [GoodsRequestController::class, 'reject'])->whereNumber('transaction')->name('requests.reject');
         Route::resource('products', ProductController::class)->except(['index', 'show']);
     });

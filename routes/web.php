@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GoodsInController;
 use App\Http\Controllers\MasterDataController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
@@ -19,6 +20,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+
+    Route::get('/goods-in', [GoodsInController::class, 'index'])->name('goods-in.index');
+    Route::get('/goods-in/create', [GoodsInController::class, 'create'])->name('goods-in.create');
+    Route::post('/goods-in', [GoodsInController::class, 'store'])->name('goods-in.store');
+    Route::get('/goods-in/{transaction}', [GoodsInController::class, 'show'])->whereNumber('transaction')->name('goods-in.show');
 
     Route::prefix('master')->where(['type' => 'categories|locations|suppliers|departments', 'id' => '[0-9]+'])->group(function () {
         Route::redirect('/', '/master/categories')->name('master.index');

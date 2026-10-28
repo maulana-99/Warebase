@@ -20,14 +20,18 @@ class DatabaseSchemaTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_seeder_creates_demo_accounts_and_products_with_zero_stock(): void
+    public function test_seeder_creates_demo_accounts_and_stock_only_through_transactions(): void
     {
         $this->seed(DatabaseSeeder::class);
 
         $this->assertSame(Role::Admin, User::where('email', 'admin@warebase.test')->first()->role);
         $this->assertSame(Role::Staff, User::where('email', 'staff@warebase.test')->first()->role);
         $this->assertGreaterThan(0, Product::count());
-        $this->assertSame(0, (int) Product::sum('stock'));
+        // Opening stock comes from goods-in transactions, so every product's stock equals its recorded movements.
+        foreach (Product::all() as $product) {
+            $this->assertSame($product->stock, (int) $product->transactionItems()->sum('quantity'));
+        }
+        $this->assertGreaterThan(0, Product::lowStock()->count());
     }
 
     public function test_transaction_relations_and_enum_casts(): void

@@ -112,3 +112,31 @@ document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
     });
 });
 syncThemeButtons();
+
+// Repeatable item rows (multi-item transactions). New rows come from a <template> with __INDEX__ placeholders.
+document.querySelectorAll('[data-items]').forEach((box) => {
+    const list = box.querySelector('[data-item-list]');
+    const template = box.querySelector('[data-item-template]');
+    let next = list.children.length;
+
+    const refresh = () => {
+        const single = list.children.length === 1;
+        list.querySelectorAll('[data-item-remove]').forEach((button) => (button.disabled = single));
+    };
+
+    box.querySelector('[data-item-add]').addEventListener('click', () => {
+        const html = template.innerHTML.replaceAll('__INDEX__', String(next++));
+        list.insertAdjacentHTML('beforeend', html);
+        list.lastElementChild.querySelector('select')?.focus();
+        refresh();
+    });
+
+    list.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-item-remove]');
+        if (!button || list.children.length === 1) return;
+        button.closest('[data-item-row]').remove();
+        refresh();
+    });
+
+    refresh();
+});

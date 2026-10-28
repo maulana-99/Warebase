@@ -1,0 +1,141 @@
+<?php
+
+namespace App\Services;
+
+use App\Enums\TransactionStatus;
+use App\Enums\TransactionType;
+use App\Exceptions\StockException;
+use App\Models\Product;
+use App\Models\Transaction;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+
+/**
+ * The only place that changes products.stock.
+ *
+ * Every change is a transaction with items. Approving it locks the affected products,
+ * records stock_before/stock_after per item and updates the stock, all inside one
+ * database transaction, so two people working at the same time can never lose or
+ * double-count stock.
+ */
+class StockService
+{
+    /** Retries if MySQL still aborts a transaction as a deadlock victim. Only the outermost call retries. */
+    private const ATTEMPTS = 3;
+
+    /**
+     * Goods received from a supplier. Counted as soon as they are recorded (approved by the recorder).
+     *
+     * @param  array{supplier_id: int, transaction_date: string, note?: string|null}  $header
+     * @param  list<array{product_id: int, quantity: int}>  $items
+     */
+    public function recordGoodsIn(User $user, array $header, array $items): Transaction
+    {
+        return DB::transaction(function () use ($user, $header, $items) {
+            // Lock the products before inserting items. The item insert's foreign key check takes a
+            // shared lock on each product; locking afterwards would let two goods-in deadlock each other.
+            $this->lockProducts(array_column($items, 'product_id'));
+            $transaction = $this->create($user, TransactionType::In, $header, $items);
+            $this->approve($transaction, $user);
+
+            return $transaction;
+        }, self::ATTEMPTS);
+    }
+
+    /**
+     * Applies a pending transaction to the stock and marks it approved.
+     *
+     * @throws StockException when the transaction is no longer pending or stock would go below zero.
+     */
+    public function approve(Transaction $transaction, User $approver): void
+    {
+        DB::transaction(function () use ($transaction, $approver) {
+            // Lock the transaction row first so it cannot be approved twice at the same time.
+            $locked = Transaction::query()->lockForUpdate()->findOrFail($transaction->id);
+            if (! $locked->isPending()) {
+                throw new StockException("Transaksi {$locked->code} sudah {$locked->status->label()}.");
+            }
+
+            $items = $locked->items()->get();
+            $products = $this->lockProducts($items->pluck('product_id')->all());
+
+            foreach ($items as $item) {
+                $product = $products->get($item->product_id)
+                    ?? throw new StockException('Salah satu produk sudah dihapus. Transaksi tidak dapat diproses.');
+
+                $after = $product->stock + $this->direction($locked->type) * $item->quantity;
+                if ($after < 0) {
+                    throw new StockException("Stok {$product->name} tidak cukup: tersedia {$product->stock} {$product->unit}, diminta {$item->quantity}.");
+                }
+
+                $item->stock_before = $product->stock;
+                $item->stock_after = $after;
+                $item->save();
+
+                $product->stock = $after;
+                $product->save();
+            }
+
+            $locked->status = TransactionStatus::Approved;
+            $locked->approved_by = $approver->id;
+            $locked->approved_at = now();
+            $locked->save();
+
+            $transaction->setRawAttributes($locked->getAttributes(), true);
+        }, self::ATTEMPTS);
+    }
+
+    /**
+     * Locks products in id order. Every writer takes locks in the same order, so they never deadlock.
+     *
+     * @param  list<int>  $ids
+     * @return Collection<int, Product>
+     */
+    private function lockProducts(array $ids): Collection
+    {
+        return Product::query()
+            ->whereIn('id', $ids)
+            ->orderBy('id')
+            ->lockForUpdate()
+            ->get()
+            ->keyBy('id');
+    }
+
+    /**
+     * @param  array<string, mixed>  $header
+     * @param  list<array{product_id: int, quantity: int}>  $items
+     */
+    private function create(User $user, TransactionType $type, array $header, array $items): Transaction
+    {
+        $transaction = new Transaction($header);
+        $transaction->type = $type;
+        $transaction->status = TransactionStatus::Pending;
+        $transaction->created_by = $user->id;
+        // Temporary unique code; the real one uses the id, which is unique and needs no counter table.
+        $transaction->code = (string) Str::ulid();
+        $transaction->save();
+
+        $transaction->code = sprintf('%s-%s-%05d', $type->codePrefix(), $transaction->transaction_date->format('Ymd'), $transaction->id);
+        $transaction->save();
+
+        foreach ($items as $item) {
+            $transaction->items()->create([
+                'product_id' => $item['product_id'],
+                'quantity' => $item['quantity'],
+            ]);
+        }
+
+        return $transaction;
+    }
+
+    private function direction(TransactionType $type): int
+    {
+        return match ($type) {
+            TransactionType::In => 1,
+            TransactionType::Out => -1,
+            TransactionType::Adjustment => throw new StockException('Penyesuaian stok diproses terpisah.'),
+        };
+    }
+}

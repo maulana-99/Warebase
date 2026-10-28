@@ -35,10 +35,12 @@ Aplikasi dibangun dengan arsitektur **Model-View-Controller (MVC)** menggunakan 
 
 Project ini bisa dijalankan di **Windows, macOS, maupun Linux**.
 
-- PHP 8.3 atau lebih baru, dengan extension `pdo_mysql`, `mbstring`, `openssl`, `intl`, `zip`, `bcmath`
+- PHP 8.3.36, 8.4.27, 8.5.12 atau lebih baru, dengan extension `pdo_mysql`, `mbstring`, `openssl`, `intl`, `zip`, `bcmath`
 - Composer 2
-- Node.js 20+ dan npm
+- Node.js 22.23.4, 24.22.1, 26.12.1 atau lebih baru, dan npm
 - MySQL 8, melalui Docker **atau** instalasi lokal
+
+> **Keamanan:** versi minimum di atas adalah rilis yang menambal celah keamanan Oktober 2026: remote code execution di PHP (CVE-2026-109618, CVE-2026-109619) dan di dekoder Brotli Node.js (CVE-2026-111497), serta sertifikat eMudhra yang bocor. PHP 8.2 ke bawah dan Node.js 20 ke bawah tidak didukung. `composer.json` menolak instalasi di PHP yang belum ditambal. Perbarui juga CA bundle sistem operasi (paket `ca-certificates`).
 
 Cek versi yang terpasang:
 

@@ -218,6 +218,8 @@ php artisan test
 
 ## Deploy ke Server (Dokploy)
 
+Panduan lengkap langkah demi langkah ada di [docs/deploy-dokploy.md](docs/deploy-dokploy.md). Ringkasannya:
+
 Aplikasi dideploy sebagai satu container dari `Dockerfile` (PHP 8.5.12 + Apache; CSS/JS di-build saat image dibuat, jadi server tidak butuh Node.js). Database MySQL berjalan sebagai service terpisah di Dokploy.
 
 1. **Database**: di Dokploy buat *Database → MySQL* dengan image `mysql:8.4`, database `warebase`, user `warebase`, password hasil generate. Jangan isi *External Port* agar database tidak terbuka ke internet. Klik **Deploy**.

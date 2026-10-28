@@ -1,32 +1,52 @@
 # Warebase
 
-Warebase adalah aplikasi web **Sistem Manajemen Inventaris Gudang**. Aplikasi ini membantu pengelola gudang mencatat data barang, kategori, dan supplier, serta mencatat setiap barang masuk dan barang keluar sehingga jumlah stok selalu akurat.
+Warebase adalah aplikasi web **Sistem Manajemen Inventaris Gudang** untuk gudang kantor, kampus, sekolah, atau instansi yang mengelola barang habis pakai (alat tulis, kertas, kebersihan, elektronik kecil). Aplikasi ini mencatat setiap barang masuk dan keluar sehingga stok selalu akurat, dan dirancang agar **sulit dicurangi**: stok tidak bisa diubah tanpa transaksi, barang keluar harus disetujui orang lain, dan semua aktivitas tercatat.
 
 Aplikasi dibangun dengan arsitektur **Model-View-Controller (MVC)** menggunakan framework Laravel dan basis data relasional MySQL. Project ini dibuat untuk UAS mata kuliah WAD04 - Web Application Development.
 
 ## Fitur Utama
 
-- Autentikasi pengguna: registrasi, login, logout, dan manajemen session.
-- Hak akses berbasis peran (role): **Admin** dan **Staff**.
-- Dashboard ringkasan: jumlah produk, peringatan stok menipis, dan transaksi terbaru.
-- CRUD data master: kategori, supplier, dan produk.
-- Pencatatan barang masuk dan barang keluar. Stok otomatis diperbarui, dan barang keluar ditolak jika stok tidak cukup.
-- Laporan pergerakan stok dengan filter tanggal.
-- Kelola pengguna (khusus Admin).
+- **Autentikasi**: login, logout, session, dan pembatasan percobaan login. Tidak ada registrasi publik; akun hanya dibuat oleh Admin.
+- **Hak akses berbasis peran**: **Admin** (kepala gudang) dan **Staff** (petugas gudang).
+- **Dashboard**: jumlah produk, stok menipis, permintaan yang menunggu persetujuan, grafik barang masuk/keluar 7 hari, dan transaksi terbaru.
+- **Data master**: kategori, rak (lokasi penyimpanan), supplier, dan divisi. Data yang masih dipakai tidak bisa dihapus.
+- **Produk**: pencarian SKU/nama, filter kategori dan stok menipis, rak, satuan, dan stok minimum. Stok tidak bisa diedit manual.
+- **Barang masuk**: banyak barang sekaligus dari satu supplier; stok langsung bertambah.
+- **Permintaan barang keluar**: diajukan untuk divisi dan nama penerima, lalu **disetujui atau ditolak Admin** (alasan wajib). Pembuat permintaan tidak bisa menyetujui permintaannya sendiri.
+- **Penyesuaian stok (stock opname)**: Admin memasukkan hasil hitung fisik; hanya selisihnya yang dicatat, dengan alasan wajib.
+- **Kartu Stok**: riwayat pergerakan stok per produk dengan saldo berjalan, plus peringatan jika stok berubah di luar transaksi.
+- **Log aktivitas**: login, login gagal, dan setiap perubahan data tercatat beserta pengguna, waktu, IP, dan nilai lama/baru. Log tidak bisa diubah atau dihapus.
+- **Laporan**: pergerakan stok per periode (stok awal, masuk, keluar, penyesuaian, stok akhir) dengan unduh CSV dan cetak, serta jejak kerja per pengguna.
+- **Kelola pengguna** (khusus Admin).
+- Tampilan **mode gelap/terang**, form dalam **popup**, dan **konfirmasi** sebelum aksi penting. Dioptimalkan untuk desktop dan tablet.
 
 ## Hak Akses
 
 | Fitur | Admin | Staff |
 |---|:---:|:---:|
-| Lihat dashboard dan data produk | Ya | Ya |
-| Catat barang masuk dan keluar | Ya | Ya |
-| Tambah, ubah, hapus kategori, supplier, produk | Ya | Tidak |
-| Lihat laporan | Ya | Ya |
+| Lihat dashboard, produk, data master, Kartu Stok | Ya | Ya |
+| Catat barang masuk | Ya | Ya |
+| Buat permintaan barang keluar | Ya | Ya |
+| Lihat permintaan | Semua | Milik sendiri |
+| Setujui / tolak permintaan | Ya, kecuali milik sendiri | Tidak |
+| Tambah, ubah, hapus data master dan produk | Ya | Tidak |
+| Penyesuaian stok | Ya | Tidak |
+| Laporan pergerakan stok | Ya | Ya |
+| Laporan jejak kerja | Semua pengguna | Diri sendiri |
+| Log aktivitas | Ya | Tidak |
 | Kelola pengguna | Ya | Tidak |
+
+## Keamanan dan Anti-Kecurangan
+
+- Stok hanya berubah lewat transaksi (barang masuk, permintaan yang disetujui, atau penyesuaian). Transaksi tidak bisa dihapus; koreksi dilakukan dengan transaksi baru.
+- Pemisahan tugas: orang yang mengajukan barang keluar tidak bisa menyetujuinya.
+- Setiap transaksi menyimpan stok sebelum dan sesudah, sehingga Kartu Stok bisa membuktikan stok sistem cocok dengan riwayatnya.
+- Proteksi CSRF, XSS (output Blade di-escape), dan SQL injection (Eloquent/Query Builder dengan parameter binding). Validasi input di server dengan Form Request.
+- Penguncian baris database saat memproses stok, sehingga dua orang yang bekerja bersamaan tidak membuat stok salah hitung.
 
 ## Teknologi
 
-- PHP 8.3+ dan Laravel 13
+- PHP 8.3+ (versi yang sudah ditambal, lihat di bawah) dan Laravel 13
 - MySQL 8
 - Blade, Tailwind CSS, dan Vite
 - Docker Compose (opsional, untuk menjalankan MySQL dan phpMyAdmin)
@@ -132,9 +152,11 @@ Butuh [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows
 docker compose up -d
 ```
 
-Perintah ini menjalankan MySQL 8 dan phpMyAdmin. Isi `.env` bawaan sudah sesuai untuk Docker, jadi tidak perlu diubah.
+Perintah ini menjalankan MySQL 8 dan phpMyAdmin. Isi `.env` bawaan sudah sesuai untuk Docker, jadi tidak perlu diubah. Database `warebase` dan `warebase_test` (untuk test) dibuat otomatis.
 
 - phpMyAdmin: http://localhost:8080 (user `app`, password `secret`)
+- Port MySQL dan phpMyAdmin hanya terbuka untuk komputer itu sendiri (`127.0.0.1`), tidak bisa diakses dari jaringan lain. Password di atas hanya untuk pengembangan lokal.
+- Menghentikan: `docker compose down` (data tetap tersimpan). Menghapus data juga: `docker compose down -v`.
 
 ### 5. Buat tabel dan isi data contoh
 
@@ -142,7 +164,9 @@ Perintah ini menjalankan MySQL 8 dan phpMyAdmin. Isi `.env` bawaan sudah sesuai 
 php artisan migrate --seed
 ```
 
-Sebagai alternatif, struktur dan data contoh juga tersedia dalam file `database/warebase.sql`. File ini bisa di-import lewat phpMyAdmin.
+Seeder membuat 2 akun contoh, data master, 11 produk, dan stok awal melalui transaksi barang masuk (beberapa produk sengaja di bawah stok minimum). Untuk mengulang dari awal: `php artisan migrate:fresh --seed`.
+
+Sebagai alternatif, struktur dan data contoh akan tersedia dalam file `database/warebase.sql` yang bisa di-import lewat phpMyAdmin (menyusul).
 
 ### 6. Build asset dan jalankan aplikasi
 
@@ -173,6 +197,17 @@ Akun berikut dibuat otomatis oleh seeder:
 | Admin | `admin@warebase.test` | `password` |
 | Staff | `staff@warebase.test` | `password` |
 
+Akun baru dibuat oleh Admin lewat menu **Pengguna**.
+
+### Mencoba alur utama
+
+1. Login sebagai **Staff**, buka **Permintaan Barang**, lalu buat permintaan beberapa barang untuk sebuah divisi.
+2. Logout, login sebagai **Admin**, buka permintaan tersebut, lalu **Setujui** (stok berkurang) atau **Tolak** dengan alasan.
+3. Buka **Produk**, klik nama produk untuk melihat **Kartu Stok** dan saldo berjalannya.
+4. Sebagai Admin, buka **Log Aktivitas** dan **Laporan** untuk melihat jejak semua aktivitas di atas.
+
+Admin tidak bisa menyetujui permintaan yang dibuatnya sendiri; ini disengaja (pemisahan tugas).
+
 ## Menjalankan Test
 
 Test otomatis memakai database terpisah bernama `warebase_test`. Jika memakai Docker, database ini sudah dibuat otomatis. Jika memakai MySQL lokal, buat database `warebase_test` terlebih dahulu.
@@ -193,6 +228,8 @@ php artisan test
 | `app/Models/` | Model Eloquent (representasi tabel dan relasinya) |
 | `app/Http/Controllers/` | Controller (logika aplikasi) |
 | `app/Http/Requests/` | Validasi input server-side |
+| `app/Services/` | Logika stok (`StockService`) dan log aktivitas (`ActivityLogger`) |
+| `app/Enums/` | Peran, jenis, dan status transaksi |
 | `resources/views/` | View Blade (tampilan) |
 | `routes/web.php` | Daftar routing aplikasi |
 | `database/migrations/` | Struktur tabel database |

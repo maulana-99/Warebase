@@ -102,6 +102,7 @@
         </div>
     </div>
 
+    <x-form-modal />
     <x-confirm-dialog />
 
     {{-- Mobile drawer. --}}

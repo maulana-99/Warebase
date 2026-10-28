@@ -6,7 +6,7 @@
             <input id="goods-in-search" name="q" type="search" value="{{ $search }}" placeholder="Cari kode atau supplier…" class="input pl-11">
         </form>
         <p class="text-sm"><span class="font-semibold">{{ $transactions->total() }}</span> <span class="text-muted">transaksi</span></p>
-        <a href="{{ route('goods-in.create') }}" class="btn-primary ml-auto"><x-icon name="plus" class="size-4" /> Catat barang masuk</a>
+        <a data-form-modal href="{{ route('goods-in.create') }}" class="btn-primary ml-auto"><x-icon name="plus" class="size-4" /> Catat barang masuk</a>
     </div>
 
     <div class="card overflow-hidden p-0">

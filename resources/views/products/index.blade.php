@@ -21,7 +21,7 @@
         <button type="submit" class="btn-secondary">Terapkan</button>
         <p class="text-sm"><span class="font-semibold">{{ $products->total() }}</span> <span class="text-muted">produk</span></p>
         @if (auth()->user()->isAdmin())
-            <a href="{{ route('products.create') }}" class="btn-primary ml-auto"><x-icon name="plus" class="size-4" /> Tambah produk</a>
+            <a data-form-modal href="{{ route('products.create') }}" class="btn-primary ml-auto"><x-icon name="plus" class="size-4" /> Tambah produk</a>
         @endif
     </form>
 
@@ -60,7 +60,7 @@
                             @if (auth()->user()->isAdmin())
                                 <td class="px-5 py-4">
                                     <div class="flex justify-end gap-2">
-                                        <a href="{{ route('products.edit', $product) }}" class="icon-btn" aria-label="Ubah {{ $product->name }}"><x-icon name="pencil" class="size-4" /></a>
+                                        <a data-form-modal href="{{ route('products.edit', $product) }}" class="icon-btn" aria-label="Ubah {{ $product->name }}"><x-icon name="pencil" class="size-4" /></a>
                                         <form method="POST" action="{{ route('products.destroy', $product) }}"
                                               data-confirm="Produk {{ $product->name }} akan dihapus permanen." data-confirm-title="Hapus produk?" data-confirm-button="Ya, hapus">
                                             @csrf

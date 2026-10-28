@@ -9,7 +9,7 @@
         </form>
         <p class="text-sm"><span class="font-semibold">{{ $items->total() }}</span> <span class="text-muted">{{ strtolower($config['title']) }}</span></p>
         @if (auth()->user()->isAdmin())
-            <a href="{{ route('master.create', $type) }}" class="btn-primary ml-auto"><x-icon name="plus" class="size-4" /> Tambah {{ strtolower($config['singular']) }}</a>
+            <a data-form-modal href="{{ route('master.create', $type) }}" class="btn-primary ml-auto"><x-icon name="plus" class="size-4" /> Tambah {{ strtolower($config['singular']) }}</a>
         @endif
     </div>
 
@@ -38,7 +38,7 @@
                             @if (auth()->user()->isAdmin())
                                 <td class="px-5 py-4">
                                     <div class="flex justify-end gap-2">
-                                        <a href="{{ route('master.edit', [$type, $item->id]) }}" class="icon-btn" aria-label="Ubah {{ $item->name }}"><x-icon name="pencil" class="size-4" /></a>
+                                        <a data-form-modal href="{{ route('master.edit', [$type, $item->id]) }}" class="icon-btn" aria-label="Ubah {{ $item->name }}"><x-icon name="pencil" class="size-4" /></a>
                                         <form method="POST" action="{{ route('master.destroy', [$type, $item->id]) }}"
                                               data-confirm="{{ $config['singular'] }} {{ $item->name }} akan dihapus permanen." data-confirm-title="Hapus {{ strtolower($config['singular']) }}?" data-confirm-button="Ya, hapus">
                                             @csrf

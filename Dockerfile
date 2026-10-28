@@ -34,6 +34,7 @@ COPY --from=vendor /var/www/html/vendor/laravel/framework/src/Illuminate/Paginat
 RUN npm run build
 
 # --- Final image ---
+# Also installs an "artisan" shortcut on PATH, usable from any folder (the Dokploy terminal may not open in /var/www/html).
 FROM php-base
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 COPY --chown=www-data:www-data . .
@@ -43,7 +44,12 @@ RUN composer dump-autoload --optimize --no-dev --no-interaction \
     && rm /usr/bin/composer \
     && php artisan package:discover --ansi \
     && chown -R www-data:www-data storage bootstrap/cache \
-    && chmod +x docker/entrypoint.sh
+    && chmod +x docker/entrypoint.sh \
+    && printf '#!/bin/sh\nexec php /var/www/html/artisan "$@"\n' > /usr/local/bin/artisan \
+    && chmod +x /usr/local/bin/artisan \
+    # "artisan" from any folder (e.g. the Dokploy terminal, which may not open in /var/www/html).
+    && printf '#!/bin/sh\nexec php /var/www/html/artisan "$@"\n' > /usr/local/bin/artisan \
+    && chmod +x /usr/local/bin/artisan
 EXPOSE 80
 HEALTHCHECK --interval=30s --timeout=5s --start-period=60s CMD curl -fsS http://localhost/up || exit 1
 ENTRYPOINT ["docker/entrypoint.sh"]

@@ -50,7 +50,7 @@ Internet ──HTTPS──> Traefik (bawaan Dokploy) ──> container "warebase
    | Docker image | `mysql:8.4` |
 
 3. Klik **Create**, lalu di halaman database klik **Deploy**. Tunggu status menjadi hijau/running.
-4. **Jangan isi External Port.** Tanpa external port, database hanya bisa diakses oleh aplikasi di jaringan internal Dokploy.
+4. **Jangan isi External Port.** Tanpa external port, database hanya bisa diakses oleh aplikasi di jaringan internal Dokploy. Jangan pernah memakai password lemah (misalnya sama dengan nama database); buat dengan `openssl rand -base64 24`.
 
 > Catatan: jika Dokploy menambahkan akhiran acak pada App Name (misalnya `warebase-mysql-x1y2z3`), pakai nama lengkap itu sebagai `DB_HOST`. Nama lengkapnya terlihat di halaman database (bagian *Internal Credentials* / *Internal Host*).
 
@@ -127,11 +127,14 @@ Klik **Save**.
 Akun login contoh dibuat oleh seeder. Jalankan sekali setelah deploy pertama:
 
 1. Di halaman aplikasi, buka **Terminal** (tombol *Open Terminal* / tab *Advanced → Terminal*), pilih container aplikasi.
-2. Jalankan:
+2. Jika diminta memilih container, pilih yang berstatus **running** (yang `exited` adalah percobaan lama).
+3. Jalankan:
 
    ```bash
-   php artisan db:seed --force
+   artisan db:seed --force
    ```
+
+   Perintah `artisan` bisa dipakai dari folder mana saja di dalam container. Cara panjangnya: `cd /var/www/html && php artisan db:seed --force`.
 
 Seeder aman dijalankan lagi: jika data contoh sudah ada, seeder akan dilewati.
 
@@ -160,7 +163,10 @@ Di halaman database MySQL, tab **Backups**: hubungkan tujuan penyimpanan (S3/Min
 | Gejala | Penyebab dan solusi |
 |---|---|
 | **Bad Gateway / 502** | Container Port di domain bukan `80`, atau container belum selesai menyala. Cek tab **Logs**. |
-| Log: `Database not reachable, giving up.` | `DB_HOST`, `DB_USERNAME`, atau `DB_PASSWORD` salah, atau database belum di-deploy. Samakan dengan data di halaman database, lalu **Redeploy**. |
+| Log: `getaddrinfo for ... failed: Name or service not known` | `DB_HOST` salah. Dokploy menambahkan akhiran acak pada nama database; salin **Internal Host** dari halaman database (misalnya `warebase-mysql-c5xys3`), lalu **Redeploy**. |
+| Log: `Database not reachable, giving up.` | `DB_HOST`, `DB_USERNAME`, atau `DB_PASSWORD` salah, atau database belum di-deploy. Samakan dengan *Internal Credentials* di halaman database, lalu **Redeploy**. |
+| Container Port menampilkan `3000` abu-abu dan error *expected number* | Itu hanya placeholder; kolomnya kosong. Ketik `80` lalu **Update**. |
+| `Could not open input file: artisan` di Terminal | Terminal tidak dibuka di folder aplikasi. Pakai `artisan ...` (tersedia di PATH) atau `cd /var/www/html` dulu. |
 | **500 Server Error** | `APP_KEY` kosong/salah. Isi dengan hasil `php artisan key:generate --show` lalu **Redeploy**. Detail error ada di tab **Logs** (karena `LOG_CHANNEL=stderr`). |
 | Halaman tanpa CSS atau form gagal kirim (419) | `APP_URL` tidak memakai `https://` atau beda dengan domain. Perbaiki lalu **Redeploy**. |
 | Login gagal terus dengan akun contoh | Seeder belum dijalankan. Lakukan langkah 7. |

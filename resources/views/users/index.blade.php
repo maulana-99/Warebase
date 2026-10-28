@@ -6,7 +6,7 @@
             <input id="user-search" name="q" type="search" value="{{ $search }}" placeholder="Cari nama atau email…" class="input pl-11">
         </form>
         <p class="text-sm"><span class="font-semibold">{{ $users->total() }}</span> <span class="text-muted">pengguna</span></p>
-        <a href="{{ route('users.create') }}" class="btn-primary ml-auto"><x-icon name="plus" class="size-4" /> Tambah pengguna</a>
+        <a data-form-modal href="{{ route('users.create') }}" class="btn-primary ml-auto"><x-icon name="plus" class="size-4" /> Tambah pengguna</a>
     </div>
 
     <div class="card overflow-hidden p-0">
@@ -35,7 +35,7 @@
                             <td class="px-5 py-4 text-muted">{{ $user->created_at->translatedFormat('j M Y') }}</td>
                             <td class="px-5 py-4">
                                 <div class="flex justify-end gap-2">
-                                    <a href="{{ route('users.edit', $user) }}" class="icon-btn" aria-label="Ubah {{ $user->name }}"><x-icon name="pencil" class="size-4" /></a>
+                                    <a data-form-modal href="{{ route('users.edit', $user) }}" class="icon-btn" aria-label="Ubah {{ $user->name }}"><x-icon name="pencil" class="size-4" /></a>
                                     @unless ($user->is(auth()->user()))
                                         <form method="POST" action="{{ route('users.destroy', $user) }}"
                                               data-confirm="Akun {{ $user->name }} akan dihapus permanen dan tidak bisa login lagi." data-confirm-title="Hapus pengguna?" data-confirm-button="Ya, hapus">

@@ -84,12 +84,16 @@ window.addEventListener('pageshow', (event) => {
     if (!event.persisted) return;
     pendingForm = null;
     document.querySelectorAll('form[data-confirmed]').forEach((form) => delete form.dataset.confirmed);
-    document.querySelectorAll('button[aria-busy="true"]').forEach((button) => {
+    resetBusy(document);
+});
+
+function resetBusy(root) {
+    root.querySelectorAll('button[aria-busy="true"]').forEach((button) => {
         button.removeAttribute('aria-busy');
         button.disabled = false;
         button.querySelector('.spinner')?.remove();
     });
-});
+}
 
 // Light/dark theme toggle (initial theme is set inline in <head> to avoid a flash).
 function syncThemeButtons() {
@@ -114,7 +118,11 @@ document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
 syncThemeButtons();
 
 // Repeatable item rows (multi-item transactions). New rows come from a <template> with __INDEX__ placeholders.
-document.querySelectorAll('[data-items]').forEach((box) => {
+function initItemRows(root) {
+    root.querySelectorAll('[data-items]').forEach(initItemBox);
+}
+
+function initItemBox(box) {
     const list = box.querySelector('[data-item-list]');
     const template = box.querySelector('[data-item-template]');
     let next = list.children.length;
@@ -139,4 +147,111 @@ document.querySelectorAll('[data-items]').forEach((box) => {
     });
 
     refresh();
+}
+
+initItemRows(document);
+
+// Create/edit forms in a modal. A link with data-form-modal fetches its page and shows that page's <form>.
+// The form is posted with fetch: validation errors (422) appear in the modal, any redirect reloads the page,
+// so flash messages and server-side rules stay exactly as on the full form page.
+const formModal = document.getElementById('form-modal');
+const formModalBody = formModal?.querySelector('[data-form-modal-body]');
+const formModalError = formModal?.querySelector('[data-form-modal-error]');
+
+function showModalError(message) {
+    formModalError.textContent = message;
+    formModalError.classList.toggle('hidden', !message);
+}
+
+document.addEventListener('click', async (event) => {
+    const link = event.target.closest('a[data-form-modal]');
+    if (!link || !formModal || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    event.preventDefault();
+
+    try {
+        const response = await fetch(link.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+        // A redirect means the page was not served (e.g. session expired, sent to login): use the full page instead.
+        if (!response.ok || response.redirected) throw new Error();
+        const page = new DOMParser().parseFromString(await response.text(), 'text/html');
+        const form = page.querySelector('main form');
+        if (!form) throw new Error();
+
+        form.classList.remove('card', 'max-w-3xl', 'max-w-4xl');
+        formModal.querySelector('#form-modal-title').textContent = page.querySelector('h1')?.textContent.trim() ?? '';
+        showModalError('');
+        formModalBody.replaceChildren(document.adoptNode(form));
+        initItemRows(formModalBody);
+        formModal.showModal();
+        formModalBody.querySelector('[autofocus]')?.focus();
+    } catch {
+        window.location.href = link.href; // Fall back to the full page.
+    }
+});
+
+formModal?.addEventListener('click', (event) => {
+    // "Batal" links inside the form and the close button just close the modal.
+    if (event.target.closest('[data-form-modal-close], [data-form-modal-body] a.btn-secondary')) {
+        event.preventDefault();
+        formModal.close();
+    }
+});
+
+formModal?.addEventListener('close', () => formModalBody.replaceChildren());
+
+function fieldName(key) {
+    const [first, ...rest] = key.split('.');
+    return first + rest.map((part) => `[${part}]`).join('');
+}
+
+function showFieldErrors(form, errors) {
+    form.querySelectorAll('[data-modal-field-error]').forEach((el) => el.remove());
+    form.querySelectorAll('[aria-invalid]').forEach((el) => el.removeAttribute('aria-invalid'));
+
+    const unplaced = [];
+    Object.entries(errors).forEach(([key, messages]) => {
+        const field = form.querySelector(`[name="${CSS.escape(fieldName(key))}"]`);
+        if (!field) return unplaced.push(messages[0]);
+        const target = (field.type === 'radio' && field.closest('fieldset')) || field;
+        field.setAttribute('aria-invalid', 'true');
+        const message = document.createElement('p');
+        message.className = 'mt-1.5 text-xs text-danger';
+        message.dataset.modalFieldError = '';
+        message.textContent = messages[0];
+        target.insertAdjacentElement(target === field ? 'afterend' : 'beforeend', message);
+    });
+
+    showModalError(unplaced.join(' '));
+    form.querySelector('[aria-invalid="true"]')?.focus();
+}
+
+// Registered after the confirm and busy handlers: it runs only for a submit nobody cancelled.
+document.addEventListener('submit', async (event) => {
+    const form = event.target;
+    if (event.defaultPrevented || !formModal?.contains(form)) return;
+    event.preventDefault();
+
+    try {
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            redirect: 'manual',
+        });
+
+        // Success or a server-side refusal both answer with a redirect; reloading shows its flash message.
+        if (response.type === 'opaqueredirect') return window.location.reload();
+
+        resetBusy(form);
+        if (response.status === 422) return showFieldErrors(form, (await response.json()).errors ?? {});
+        showModalError(
+            [401, 419].includes(response.status)
+                ? 'Sesi Anda sudah berakhir. Muat ulang halaman lalu coba lagi.'
+                : response.status === 403
+                  ? 'Anda tidak memiliki akses untuk tindakan ini.'
+                  : 'Terjadi kesalahan. Silakan coba lagi.',
+        );
+    } catch {
+        resetBusy(form);
+        showModalError('Tidak dapat terhubung ke server. Periksa koneksi lalu coba lagi.');
+    }
 });

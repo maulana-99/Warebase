@@ -90,3 +90,25 @@ window.addEventListener('pageshow', (event) => {
         button.querySelector('.spinner')?.remove();
     });
 });
+
+// Light/dark theme toggle (initial theme is set inline in <head> to avoid a flash).
+function syncThemeButtons() {
+    const next = document.documentElement.dataset.theme === 'dark' ? 'terang' : 'gelap';
+    document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
+        button.setAttribute('aria-label', `Ganti ke mode ${next}`);
+    });
+}
+
+document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
+    button.addEventListener('click', () => {
+        const theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = theme;
+        try {
+            localStorage.setItem('theme', theme);
+        } catch (e) {
+            // Storage blocked (private mode): the theme still applies for this page.
+        }
+        syncThemeButtons();
+    });
+});
+syncThemeButtons();

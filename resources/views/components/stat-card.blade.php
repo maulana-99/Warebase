@@ -21,11 +21,11 @@
     <div class="mt-auto flex items-center gap-3 pt-6">
         <p class="text-4xl font-semibold tracking-tight">{{ $value }}</p>
         @if ($tone)
-            <span @class(['badge', 'bg-rose/90 text-shell' => $tone === 'danger', 'bg-mint text-shell' => $tone === 'success', 'bg-sun text-shell' => $tone === 'warning'])>
+            <span @class(['badge', 'bg-rose/90 text-on-accent' => $tone === 'danger', 'bg-mint text-on-accent' => $tone === 'success', 'bg-sun text-on-accent' => $tone === 'warning'])>
                 {{ $slot }}
             </span>
         @elseif ($change !== null)
-            <span @class(['badge text-shell', 'bg-mint' => $change >= 0, 'bg-rose' => $change < 0])>
+            <span @class(['badge text-on-accent', 'bg-mint' => $change >= 0, 'bg-rose' => $change < 0])>
                 <x-icon :name="$change >= 0 ? 'arrow-up' : 'arrow-down'" class="size-3" />
                 {{ number_format(abs($change), 1, ',', '.') }}%
             </span>

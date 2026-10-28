@@ -93,12 +93,12 @@
             <div class="card flex min-h-56 flex-col">
                 <span class="flex size-11 items-center justify-center rounded-full bg-raised"><x-icon name="clipboard-list" /></span>
                 <p class="mt-auto text-5xl font-semibold">{{ $stats['pendingRequests'] }} <span class="text-2xl font-medium">permintaan</span></p>
-                <p class="mt-2 text-sm text-muted">{{ $stats['pendingRequests'] }} permintaan <span class="text-rose">sedang menunggu</span> persetujuan admin.</p>
+                <p class="mt-2 text-sm text-muted">{{ $stats['pendingRequests'] }} permintaan <span class="text-danger">sedang menunggu</span> persetujuan admin.</p>
             </div>
             <div class="card flex min-h-56 flex-col">
                 <span class="flex size-11 items-center justify-center rounded-full bg-raised"><x-icon name="alert" /></span>
                 <p class="mt-auto text-5xl font-semibold">{{ $stats['lowStock'] }} <span class="text-2xl font-medium">produk</span></p>
-                <p class="mt-2 text-sm text-muted">{{ $stats['lowStock'] }} produk <span class="text-rose">hampir habis</span> dan perlu dipesan ulang.</p>
+                <p class="mt-2 text-sm text-muted">{{ $stats['lowStock'] }} produk <span class="text-danger">hampir habis</span> dan perlu dipesan ulang.</p>
             </div>
         </section>
 
@@ -176,7 +176,7 @@
                             <p class="text-xs text-subtle">{{ $product->sku }} · Rak {{ $product->location?->code ?? '—' }}</p>
                         </div>
                         <p class="text-right text-sm">
-                            <span class="font-semibold text-rose">{{ $product->stock }}</span>
+                            <span class="font-semibold text-danger">{{ $product->stock }}</span>
                             <span class="text-subtle">/ {{ $product->min_stock }} {{ $product->unit }}</span>
                         </p>
                     </li>

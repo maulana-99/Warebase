@@ -9,6 +9,18 @@
 
         <title>{{ $title ? $title.' · ' : '' }}{{ config('app.name') }}</title>
 
+        {{-- Apply the saved theme (or the OS preference) before paint, so the page never flashes. --}}
+        <script>
+            (() => {
+                let theme = null;
+                try { theme = localStorage.getItem('theme'); } catch (e) {}
+                if (theme !== 'light' && theme !== 'dark') {
+                    theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+                }
+                document.documentElement.dataset.theme = theme;
+            })();
+        </script>
+
         @fonts
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>

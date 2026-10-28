@@ -24,7 +24,7 @@
 
     <div data-app-shell class="flex min-h-screen bg-shell md:min-h-[calc(100vh-3rem)] md:rounded-[2rem]">
         {{-- Desktop: icon rail. --}}
-        <aside class="sticky top-0 hidden h-screen w-24 shrink-0 flex-col items-center border-r border-white/5 py-6 md:flex md:h-[calc(100vh-3rem)]">
+        <aside class="sticky top-0 hidden h-screen w-24 shrink-0 flex-col items-center border-r border-line/60 py-6 md:flex md:h-[calc(100vh-3rem)]">
             <a href="{{ route('dashboard') }}" class="mb-10 text-ink" aria-label="Warebase, ke dashboard">
                 <x-logo />
             </a>
@@ -47,7 +47,7 @@
 
             <form method="POST" action="{{ route('logout') }}" data-confirm="Sesi Anda akan diakhiri. Pekerjaan yang belum disimpan akan hilang." data-confirm-title="Keluar dari Warebase?" data-confirm-button="Ya, keluar">
                 @csrf
-                <button type="submit" class="flex size-11 items-center justify-center rounded-2xl bg-raised text-ink transition duration-150 hover:bg-rose/20 hover:text-rose active:scale-90" aria-label="Keluar">
+                <button type="submit" class="flex size-11 items-center justify-center rounded-2xl bg-raised text-ink transition duration-150 hover:bg-rose/20 hover:text-danger active:scale-90" aria-label="Keluar">
                     <x-icon name="logout" />
                 </button>
             </form>
@@ -69,11 +69,12 @@
                 <p class="hidden text-sm font-semibold lg:block">{{ now()->translatedFormat('l, j F Y') }}</p>
 
                 <div class="ml-auto flex items-center gap-3">
+                    <x-theme-toggle />
                     <div class="hidden text-right sm:block">
                         <p class="text-sm font-semibold">{{ $user->name }}</p>
                         <p class="text-xs text-muted">{{ $user->role->label() }}</p>
                     </div>
-                    <span class="flex size-11 items-center justify-center rounded-full bg-sky text-sm font-bold text-shell" aria-hidden="true">
+                    <span class="flex size-11 items-center justify-center rounded-full bg-sky text-sm font-bold text-on-accent" aria-hidden="true">
                         {{ str($user->name)->explode(' ')->take(2)->map(fn ($part) => mb_substr($part, 0, 1))->join('') }}
                     </span>
                 </div>
@@ -85,13 +86,13 @@
                 @endif
 
                 @if (session('success'))
-                    <div role="status" class="mb-6 flex items-center gap-3 rounded-2xl bg-mint/15 px-4 py-3 text-sm text-mint">
+                    <div role="status" class="mb-6 flex items-center gap-3 rounded-2xl bg-mint/15 px-4 py-3 text-sm text-success">
                         <x-icon name="check" class="size-4" /> {{ session('success') }}
                     </div>
                 @endif
 
                 @if (session('error'))
-                    <div role="alert" class="mb-6 flex items-center gap-3 rounded-2xl bg-rose/15 px-4 py-3 text-sm text-rose">
+                    <div role="alert" class="mb-6 flex items-center gap-3 rounded-2xl bg-rose/15 px-4 py-3 text-sm text-danger">
                         <x-icon name="alert" class="size-4" /> {{ session('error') }}
                     </div>
                 @endif

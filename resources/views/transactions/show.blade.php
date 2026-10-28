@@ -3,7 +3,7 @@
         <section class="card overflow-hidden p-0">
             <h2 class="px-5 pt-5 text-lg font-semibold">Daftar barang</h2>
             <div class="overflow-x-auto">
-                <table class="mt-3 w-full min-w-[36rem] text-left text-sm">
+                <table class="table-stack mt-3 w-full min-w-[36rem] text-left text-sm">
                     <thead class="bg-raised/60 text-xs tracking-wide text-muted uppercase">
                         <tr>
                             <th scope="col" class="px-5 py-3 font-medium">Produk</th>
@@ -53,6 +53,7 @@
 
         <aside class="card">
             <dl class="grid gap-4 text-sm">
+                <div><dt class="text-muted">Jenis</dt><dd class="mt-1"><x-type-badge :type="$transaction->type" /></dd></div>
                 <div><dt class="text-muted">Status</dt><dd class="mt-1"><x-status-badge :status="$transaction->status" /></dd></div>
                 <div><dt class="text-muted">Tanggal</dt><dd class="mt-1 font-semibold">{{ $transaction->transaction_date->translatedFormat('l, j F Y') }}</dd></div>
                 @if ($transaction->supplier)

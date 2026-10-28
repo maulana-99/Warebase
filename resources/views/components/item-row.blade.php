@@ -1,5 +1,6 @@
-<div data-item-row class="grid grid-cols-[1fr_8rem_auto] items-start gap-3 rounded-2xl border border-line bg-raised/40 p-3">
-    <div>
+<div data-item-row class="grid grid-cols-[1fr_auto] items-start gap-3 rounded-2xl border border-line bg-raised/40 p-3 sm:grid-cols-[1fr_8rem_auto]">
+    {{-- Phones: product on its own line, quantity and delete below. --}}
+    <div class="col-span-2 sm:col-span-1">
         <label for="items-{{ $index }}-product" class="sr-only">Produk</label>
         <select id="items-{{ $index }}-product" name="items[{{ $index }}][product_id]" required class="input"
                 @error("items.$index.product_id") aria-invalid="true" @enderror>

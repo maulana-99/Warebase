@@ -80,7 +80,7 @@
                 </div>
             </header>
 
-            <main id="main" tabindex="-1" class="flex-1 px-4 pt-6 pb-10 sm:px-6">
+            <main id="main" tabindex="-1" class="min-w-0 flex-1 px-4 pt-6 pb-10 sm:px-6">
                 @if ($heading)
                     <h1 class="mb-6 text-3xl font-bold sm:text-4xl">{{ $heading }}</h1>
                 @endif

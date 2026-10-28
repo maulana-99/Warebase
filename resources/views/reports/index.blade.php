@@ -45,7 +45,7 @@
     <div class="card overflow-hidden p-0">
         <div class="overflow-x-auto">
             @if ($tab === 'stock')
-                <table class="w-full min-w-[56rem] text-left text-sm">
+                <table class="table-stack w-full min-w-[56rem] text-left text-sm">
                     <caption class="sr-only">Pergerakan stok per produk</caption>
                     <thead class="bg-raised/60 text-xs tracking-wide text-muted uppercase">
                         <tr>
@@ -88,7 +88,7 @@
                     @endif
                 </table>
             @else
-                <table class="w-full min-w-[56rem] text-left text-sm">
+                <table class="table-stack w-full min-w-[56rem] text-left text-sm">
                     <caption class="sr-only">Jejak kerja per pengguna</caption>
                     <thead class="bg-raised/60 text-xs tracking-wide text-muted uppercase">
                         <tr>

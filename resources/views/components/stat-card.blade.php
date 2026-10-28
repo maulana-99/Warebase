@@ -1,7 +1,7 @@
 @props(['label', 'value', 'hint' => null, 'href' => null, 'highlight' => false, 'change' => null, 'tone' => null])
 
 <div @class([
-    'relative flex min-h-40 flex-col rounded-3xl p-5',
+    'relative flex min-h-36 flex-col rounded-3xl p-4 sm:min-h-40 sm:p-5',
     'bg-ink text-shell' => $highlight,
     'bg-panel' => ! $highlight,
 ])>
@@ -18,8 +18,8 @@
         @endif
     </div>
 
-    <div class="mt-auto flex items-center gap-3 pt-6">
-        <p class="text-4xl font-semibold tracking-tight">{{ $value }}</p>
+    <div class="mt-auto flex flex-wrap items-center gap-2 pt-4 sm:gap-3 sm:pt-6">
+        <p class="text-3xl font-semibold tracking-tight sm:text-4xl">{{ $value }}</p>
         @if ($tone)
             <span @class(['badge', 'bg-rose/90 text-on-accent' => $tone === 'danger', 'bg-mint text-on-accent' => $tone === 'success', 'bg-sun text-on-accent' => $tone === 'warning'])>
                 {{ $slot }}

@@ -15,7 +15,7 @@
 
     <div class="card overflow-hidden p-0">
         <div class="overflow-x-auto">
-            <table class="w-full min-w-[40rem] text-left text-sm">
+            <table class="table-stack w-full min-w-[40rem] text-left text-sm">
                 <caption class="sr-only">Daftar {{ strtolower($config['title']) }}</caption>
                 <thead class="bg-raised/60 text-xs tracking-wide text-muted uppercase">
                     <tr>

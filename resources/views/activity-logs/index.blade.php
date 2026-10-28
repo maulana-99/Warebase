@@ -29,7 +29,7 @@
 
     <div class="card overflow-hidden p-0">
         <div class="overflow-x-auto">
-            <table class="w-full min-w-[52rem] text-left text-sm">
+            <table class="table-stack w-full min-w-[52rem] text-left text-sm">
                 <caption class="sr-only">Log aktivitas</caption>
                 <thead class="bg-raised/60 text-xs tracking-wide text-muted uppercase">
                     <tr>
@@ -45,7 +45,16 @@
                             <td class="px-5 py-4 whitespace-nowrap text-muted">{{ $log->created_at->translatedFormat('j M Y, H:i:s') }}</td>
                             <td class="px-5 py-4">{{ $log->user?->name ?? 'Tamu' }}</td>
                             <td class="px-5 py-4">
-                                <p @class(['font-medium', 'text-danger' => $log->action === 'auth.failed'])>{{ $log->description }}</p>
+                                @php($verb = \Illuminate\Support\Str::afterLast($log->action, '.'))
+                                <p class="flex flex-wrap items-center gap-2">
+                                    <span @class([
+                                        'badge',
+                                        'bg-rose/15 text-danger' => in_array($verb, ['failed', 'deleted', 'rejected'], true),
+                                        'bg-mint/15 text-success' => in_array($verb, ['created', 'recorded', 'approved', 'login'], true),
+                                        'bg-sky/15 text-info' => in_array($verb, ['updated', 'logout'], true),
+                                    ])>{{ $groups[\Illuminate\Support\Str::before($log->action, '.')] ?? $log->action }}</span>
+                                    <span @class(['font-medium', 'text-danger' => $log->action === 'auth.failed'])>{{ $log->description }}</span>
+                                </p>
                                 @foreach ($log->properties['changes'] ?? [] as $column => $change)
                                     <p class="text-xs text-subtle">{{ $column }}: {{ is_scalar($change['old']) ? $change['old'] : '-' }} → {{ is_scalar($change['new']) ? $change['new'] : '-' }}</p>
                                 @endforeach

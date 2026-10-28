@@ -3,7 +3,7 @@
         <section class="card">
             <p class="text-xs text-subtle">{{ $product->sku }} · {{ $product->category->name }} · Rak {{ $product->location?->code ?? '-' }}</p>
             <h2 class="mt-1 text-2xl font-semibold">{{ $product->name }}</h2>
-            <p class="mt-3 text-sm text-muted">Stok sistem: <span class="text-lg font-semibold text-ink">{{ $product->stock }} {{ $product->unit }}</span> · Minimum {{ $product->min_stock }}</p>
+            <p class="mt-3 flex flex-wrap items-center gap-2 text-sm text-muted">Stok sistem: <span class="text-lg font-semibold text-ink">{{ $product->stock }} {{ $product->unit }}</span> <x-stock-badge :product="$product" /> · Minimum {{ $product->min_stock }}</p>
         </section>
 
         <section @class(['card flex items-center gap-3 text-sm', 'text-success' => $balanced, 'text-danger' => ! $balanced]) role="status">
@@ -38,7 +38,7 @@
 
     <div class="card overflow-hidden p-0">
         <div class="overflow-x-auto">
-            <table class="w-full min-w-[56rem] text-left text-sm">
+            <table class="table-stack w-full min-w-[56rem] text-left text-sm">
                 <caption class="sr-only">Riwayat pergerakan stok {{ $product->name }}</caption>
                 <thead class="bg-raised/60 text-xs tracking-wide text-muted uppercase">
                     <tr>
@@ -62,7 +62,7 @@
                                 @else
                                     <span class="font-semibold">{{ $item->transaction->code }}</span>
                                 @endif
-                                <p class="text-xs text-subtle">{{ $item->transaction->type->label() }} · {{ $item->transaction->creator->name }}</p>
+                                <p class="mt-1 flex flex-wrap items-center gap-2 text-xs text-subtle"><x-type-badge :type="$item->transaction->type" /> {{ $item->transaction->creator->name }}</p>
                             </td>
                             <td class="max-w-xs truncate px-5 py-4 text-muted">
                                 {{-- The free-text note is only shown to users who may open the transaction itself. --}}

@@ -19,6 +19,15 @@
     --color-muted: #9a9aa3;
     --color-subtle: #6b6b74;
 
+    /* Text on solid pastel fills: always dark for contrast. */
+    --color-on-accent: #111114;
+
+    /* Status text (readable on panels); light mode swaps in darker shades. */
+    --color-success: #86efac;
+    --color-warning: #fde68a;
+    --color-danger: #f87171;
+    --color-info: #7c9cf5;
+
     /* Accents (pastel status colors from the design). */
     --color-brand: #1747e0;
     --color-sky: #7c9cf5;
@@ -31,6 +40,30 @@
 /* Interaction feedback shared by all buttons: hover brightens, press shrinks, busy dims. */
 @utility btn-base {
     @apply inline-flex items-center justify-center gap-2 transition duration-150 ease-out select-none active:scale-[0.96] aria-busy:pointer-events-none aria-busy:opacity-70 disabled:active:scale-100;
+}
+
+/* Light theme: chosen explicitly (data-theme="light") or by the OS when no choice is saved. */
+@layer base {
+    :root[data-theme='light'] {
+        color-scheme: light;
+        --color-canvas: #e4e4e9;
+        --color-shell: #ffffff;
+        --color-panel: #f3f3f6;
+        --color-raised: #e7e7ec;
+        --color-line: #d9d9e0;
+        --color-ink: #121216;
+        --color-muted: #585862;
+        --color-subtle: #7a7a84;
+        --color-sky: #6b8cf0;
+        --color-peach: #f0935a;
+        --color-sun: #f5d360;
+        --color-mint: #5fd88a;
+        --color-rose: #f26b6b;
+        --color-success: #15803d;
+        --color-warning: #a16207;
+        --color-danger: #dc2626;
+        --color-info: #2563eb;
+    }
 }
 
 @layer base {
@@ -70,11 +103,11 @@
     }
 
     .icon-btn {
-        @apply btn-base size-10 rounded-full bg-raised text-ink hover:bg-line hover:text-white active:bg-line/70;
+        @apply btn-base size-10 rounded-full bg-raised text-ink hover:bg-line hover:text-ink active:bg-line/70;
     }
 
     .btn-primary {
-        @apply btn-base rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-shell hover:bg-white hover:shadow-[0_6px_24px_-8px_rgb(255_255_255/0.45)] active:bg-ink/85 disabled:opacity-50;
+        @apply btn-base rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-shell hover:bg-ink/90 hover:shadow-lg hover:shadow-ink/20 active:bg-ink/80 disabled:opacity-50;
     }
 
     .btn-secondary {
@@ -96,11 +129,17 @@
 
 @layer components {
     .btn-danger {
-        @apply bg-rose text-shell hover:bg-rose/85 hover:shadow-[0_6px_24px_-8px_rgb(248_113_113/0.6)] active:bg-rose/75;
+        @apply bg-rose text-on-accent hover:bg-rose/85 hover:shadow-[0_6px_24px_-8px_rgb(248_113_113/0.6)] active:bg-rose/75;
     }
 
     /* Spinner shown inside a button while its form is submitting. */
     .spinner {
         @apply size-4 animate-spin rounded-full border-2 border-current border-r-transparent;
     }
+}
+
+/* Theme toggle shows the icon of the theme it switches to. */
+:root[data-theme='dark'] .theme-icon-moon,
+:root[data-theme='light'] .theme-icon-sun {
+    display: none;
 }

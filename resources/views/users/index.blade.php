@@ -29,7 +29,7 @@
                                 <p class="text-xs text-subtle">{{ $user->email }}</p>
                             </td>
                             <td class="px-5 py-4">
-                                <span @class(['badge', 'bg-sky/15 text-sky' => $user->isAdmin(), 'bg-raised text-muted' => ! $user->isAdmin()])>{{ $user->role->label() }}</span>
+                                <span @class(['badge', 'bg-sky/15 text-info' => $user->isAdmin(), 'bg-raised text-muted' => ! $user->isAdmin()])>{{ $user->role->label() }}</span>
                             </td>
                             <td class="px-5 py-4">{{ $user->created_transactions_count }}</td>
                             <td class="px-5 py-4 text-muted">{{ $user->created_at->translatedFormat('j M Y') }}</td>
@@ -41,7 +41,7 @@
                                               data-confirm="Akun {{ $user->name }} akan dihapus permanen dan tidak bisa login lagi." data-confirm-title="Hapus pengguna?" data-confirm-button="Ya, hapus">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="icon-btn hover:bg-rose/20 hover:text-rose" aria-label="Hapus {{ $user->name }}"><x-icon name="trash" class="size-4" /></button>
+                                            <button type="submit" class="icon-btn hover:bg-rose/20 hover:text-danger" aria-label="Hapus {{ $user->name }}"><x-icon name="trash" class="size-4" /></button>
                                         </form>
                                     @endunless
                                 </div>

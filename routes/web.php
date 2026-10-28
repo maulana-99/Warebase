@@ -8,6 +8,7 @@ use App\Http\Controllers\GoodsInController;
 use App\Http\Controllers\GoodsRequestController;
 use App\Http\Controllers\MasterDataController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StockCardController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -35,6 +36,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/requests/create', [GoodsRequestController::class, 'create'])->name('requests.create');
     Route::post('/requests', [GoodsRequestController::class, 'store'])->name('requests.store');
     Route::get('/requests/{transaction}', [GoodsRequestController::class, 'show'])->whereNumber('transaction')->name('requests.show');
+
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/stock.csv', [ReportController::class, 'stockCsv'])->name('reports.stock-csv');
 
     Route::prefix('master')->where(['type' => 'categories|locations|suppliers|departments', 'id' => '[0-9]+'])->group(function () {
         Route::redirect('/', '/master/categories')->name('master.index');

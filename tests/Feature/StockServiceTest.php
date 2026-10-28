@@ -48,9 +48,10 @@ class StockServiceTest extends TestCase
         $this->assertDatabaseHas('transaction_items', ['product_id' => $a->id, 'quantity' => 5, 'stock_before' => 10, 'stock_after' => 15]);
     }
 
-    public function test_approving_twice_is_rejected(): void
+    public function test_goods_in_cannot_be_approved_again_as_a_request(): void
     {
         $user = User::factory()->create();
+        $admin = User::factory()->admin()->create();
         $product = Product::factory()->create();
         $transaction = $this->stock->recordGoodsIn($user, ['supplier_id' => Transaction::factory()->make()->supplier_id, 'transaction_date' => now()->toDateString()], [
             ['product_id' => $product->id, 'quantity' => 3],
@@ -58,7 +59,7 @@ class StockServiceTest extends TestCase
 
         $this->expectException(StockException::class);
         try {
-            $this->stock->approve($transaction, $user);
+            $this->stock->approveRequest($transaction, $admin);
         } finally {
             $this->assertSame(3, $product->fresh()->stock);
         }
@@ -77,7 +78,7 @@ class StockServiceTest extends TestCase
         $out->items()->create(['product_id' => $short->id, 'quantity' => 2]);
 
         try {
-            $this->stock->approve($out, $admin);
+            $this->stock->approveRequest($out, $admin);
             $this->fail('Expected StockException');
         } catch (StockException $e) {
             $this->assertStringContainsString('tidak cukup', $e->getMessage());
@@ -98,7 +99,7 @@ class StockServiceTest extends TestCase
         $out = Transaction::factory()->create(['type' => TransactionType::Out, 'supplier_id' => null, 'department_id' => Department::factory()]);
         $out->items()->create(['product_id' => $product->id, 'quantity' => 10]);
 
-        $this->stock->approve($out, $admin);
+        $this->stock->approveRequest($out, $admin);
 
         $this->assertSame(0, $product->fresh()->stock);
         $this->assertSame($admin->id, $out->fresh()->approved_by);
@@ -108,11 +109,12 @@ class StockServiceTest extends TestCase
     {
         $admin = User::factory()->admin()->create();
         $product = Product::factory()->create();
-        $transaction = Transaction::factory()->create();
+        $transaction = Transaction::factory()->create(['type' => TransactionType::Out, 'supplier_id' => null, 'department_id' => \App\Models\Department::factory()]);
         $transaction->items()->create(['product_id' => $product->id, 'quantity' => 1]);
         $product->delete();
 
         $this->expectException(StockException::class);
-        $this->stock->approve($transaction, $admin);
+        $this->expectExceptionMessage('dihapus');
+        $this->stock->approveRequest($transaction, $admin);
     }
 }

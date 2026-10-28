@@ -8,8 +8,12 @@
                         <tr>
                             <th scope="col" class="px-5 py-3 font-medium">Produk</th>
                             <th scope="col" class="px-5 py-3 font-medium">Jumlah</th>
-                            <th scope="col" class="px-5 py-3 font-medium">Stok sebelum</th>
-                            <th scope="col" class="px-5 py-3 font-medium">Stok sesudah</th>
+                            @if ($transaction->isPending())
+                                <th scope="col" class="px-5 py-3 font-medium">Stok saat ini</th>
+                            @else
+                                <th scope="col" class="px-5 py-3 font-medium">Stok sebelum</th>
+                                <th scope="col" class="px-5 py-3 font-medium">Stok sesudah</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-line">
@@ -20,8 +24,17 @@
                                     <p class="text-xs text-subtle">{{ $item->product->sku }}</p>
                                 </td>
                                 <td class="px-5 py-4">{{ $item->quantity }} {{ $item->product->unit }}</td>
-                                <td class="px-5 py-4 text-muted">{{ $item->stock_before ?? '-' }}</td>
-                                <td class="px-5 py-4 font-semibold">{{ $item->stock_after ?? '-' }}</td>
+                                @if ($transaction->isPending())
+                                    <td class="px-5 py-4">
+                                        {{ $item->product->stock }}
+                                        @if ($item->product->stock < $item->quantity)
+                                            <span class="badge ml-1 bg-rose/15 text-danger">Tidak cukup</span>
+                                        @endif
+                                    </td>
+                                @else
+                                    <td class="px-5 py-4 text-muted">{{ $item->stock_before ?? '-' }}</td>
+                                    <td class="px-5 py-4 font-semibold">{{ $item->stock_after ?? '-' }}</td>
+                                @endif
                             </tr>
                         @endforeach
                     </tbody>
@@ -36,14 +49,25 @@
                 @if ($transaction->supplier)
                     <div><dt class="text-muted">Supplier</dt><dd class="mt-1 font-semibold">{{ $transaction->supplier->name }}</dd></div>
                 @endif
+                @if ($transaction->department)
+                    <div><dt class="text-muted">Untuk</dt><dd class="mt-1 font-semibold">{{ $transaction->department->name }}</dd><dd class="text-xs text-subtle">Penerima: {{ $transaction->recipient_name }}</dd></div>
+                @endif
                 <div><dt class="text-muted">Dicatat oleh</dt><dd class="mt-1 font-semibold">{{ $transaction->creator->name }}</dd><dd class="text-xs text-subtle">{{ $transaction->created_at->translatedFormat('j M Y, H:i') }}</dd></div>
                 @if ($transaction->approver)
-                    <div><dt class="text-muted">Disetujui oleh</dt><dd class="mt-1 font-semibold">{{ $transaction->approver->name }}</dd><dd class="text-xs text-subtle">{{ $transaction->approved_at->translatedFormat('j M Y, H:i') }}</dd></div>
+                    <div><dt class="text-muted">{{ $transaction->status === \App\Enums\TransactionStatus::Rejected ? 'Ditolak oleh' : 'Disetujui oleh' }}</dt><dd class="mt-1 font-semibold">{{ $transaction->approver->name }}</dd><dd class="text-xs text-subtle">{{ $transaction->approved_at->translatedFormat('j M Y, H:i') }}</dd></div>
+                @endif
+                @if ($transaction->reject_reason)
+                    <div><dt class="text-muted">Alasan penolakan</dt><dd class="mt-1 whitespace-pre-line text-danger">{{ $transaction->reject_reason }}</dd></div>
                 @endif
                 @if ($transaction->note)
                     <div><dt class="text-muted">Catatan</dt><dd class="mt-1 whitespace-pre-line">{{ $transaction->note }}</dd></div>
                 @endif
             </dl>
+            @if ($canDecide ?? false)
+                @include('requests._decision')
+            @elseif ($transaction->isPending() && auth()->user()->isAdmin())
+                <p class="mt-6 rounded-2xl bg-sun/15 px-4 py-3 text-sm text-warning">Ini permintaan Anda sendiri. Admin lain yang harus memutuskannya.</p>
+            @endif
             <a href="{{ $backRoute }}" class="btn-secondary mt-6 w-full justify-center">Kembali</a>
         </aside>
     </div>

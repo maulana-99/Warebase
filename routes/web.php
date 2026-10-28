@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GoodsInController;
+use App\Http\Controllers\GoodsRequestController;
 use App\Http\Controllers\MasterDataController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
@@ -26,6 +27,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/goods-in', [GoodsInController::class, 'store'])->name('goods-in.store');
     Route::get('/goods-in/{transaction}', [GoodsInController::class, 'show'])->whereNumber('transaction')->name('goods-in.show');
 
+    Route::get('/requests', [GoodsRequestController::class, 'index'])->name('requests.index');
+    Route::get('/requests/create', [GoodsRequestController::class, 'create'])->name('requests.create');
+    Route::post('/requests', [GoodsRequestController::class, 'store'])->name('requests.store');
+    Route::get('/requests/{transaction}', [GoodsRequestController::class, 'show'])->whereNumber('transaction')->name('requests.show');
+
     Route::prefix('master')->where(['type' => 'categories|locations|suppliers|departments', 'id' => '[0-9]+'])->group(function () {
         Route::redirect('/', '/master/categories')->name('master.index');
         Route::get('{type}', [MasterDataController::class, 'list'])->name('master.list');
@@ -41,6 +47,8 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('role:admin')->group(function () {
         Route::resource('users', UserController::class)->except('show');
+        Route::post('/requests/{transaction}/approve', [GoodsRequestController::class, 'approve'])->whereNumber('transaction')->name('requests.approve');
+        Route::post('/requests/{transaction}/reject', [GoodsRequestController::class, 'reject'])->whereNumber('transaction')->name('requests.reject');
         Route::resource('products', ProductController::class)->except(['index', 'show']);
     });
 });

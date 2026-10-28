@@ -60,6 +60,7 @@ class MasterDataController extends Controller
     public function store(MasterDataRequest $request, string $type): RedirectResponse
     {
         $item = self::MODELS[$type]::create($request->validated());
+        $this->audit('master.created', "Menambah {$request->config()['singular']} {$item->name}", $item);
 
         return redirect()->route('master.list', $type)
             ->with('success', "{$request->config()['singular']} {$item->name} berhasil ditambahkan.");
@@ -77,7 +78,9 @@ class MasterDataController extends Controller
     public function update(MasterDataRequest $request, string $type, int $id): RedirectResponse
     {
         $item = self::MODELS[$type]::findOrFail($id);
+        $before = $item->getAttributes();
         $item->update($request->validated());
+        $this->audit('master.updated', "Mengubah {$request->config()['singular']} {$item->name}", $item, $this->changes($item, $before));
 
         return redirect()->route('master.list', $type)
             ->with('success', "{$request->config()['singular']} {$item->name} berhasil diperbarui.");
@@ -94,6 +97,7 @@ class MasterDataController extends Controller
 
         // Nothing points at it, so remove it for real. A soft delete would keep the unique name reserved.
         $item->forceDelete();
+        $this->audit('master.deleted', "Menghapus {$config['singular']} {$item->name}");
 
         return redirect()->route('master.list', $type)
             ->with('success', "{$config['singular']} {$item->name} berhasil dihapus.");

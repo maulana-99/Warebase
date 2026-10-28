@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AdjustmentController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DashboardController;
@@ -7,6 +8,7 @@ use App\Http\Controllers\GoodsInController;
 use App\Http\Controllers\GoodsRequestController;
 use App\Http\Controllers\MasterDataController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\StockCardController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -22,6 +24,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+    Route::get('/products/{product}/stock-card', StockCardController::class)->name('products.stock-card');
 
     Route::get('/goods-in', [GoodsInController::class, 'index'])->name('goods-in.index');
     Route::get('/goods-in/create', [GoodsInController::class, 'create'])->name('goods-in.create');
@@ -49,6 +52,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin')->group(function () {
         Route::resource('users', UserController::class)->except('show');
         Route::post('/requests/{transaction}/approve', [GoodsRequestController::class, 'approve'])->whereNumber('transaction')->name('requests.approve');
+        Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
         Route::get('/adjustments', [AdjustmentController::class, 'index'])->name('adjustments.index');
         Route::get('/adjustments/create', [AdjustmentController::class, 'create'])->name('adjustments.create');
         Route::post('/adjustments', [AdjustmentController::class, 'store'])->name('adjustments.store');

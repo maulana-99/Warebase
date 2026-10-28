@@ -42,6 +42,7 @@ class UserController extends Controller
         $user = new User($request->safe()->only(['name', 'email', 'password']));
         $user->role = $request->enum('role', Role::class);
         $user->save();
+        $this->audit('user.created', "Membuat akun {$user->name} ({$user->role->label()})", $user);
 
         return redirect()->route('users.index')->with('success', "Akun {$user->name} berhasil dibuat.");
     }
@@ -59,12 +60,14 @@ class UserController extends Controller
             return back()->withInput()->with('error', 'Anda tidak dapat mengubah peran akun Anda sendiri.');
         }
 
+        $before = $user->getAttributes();
         $user->fill($request->safe()->only(['name', 'email']));
         if ($request->filled('password')) {
             $user->password = $request->validated('password');
         }
         $user->role = $role;
         $user->save();
+        $this->audit('user.updated', "Mengubah akun {$user->name}", $user, $this->changes($user, $before));
 
         return redirect()->route('users.index')->with('success', "Akun {$user->name} berhasil diperbarui.");
     }
@@ -81,6 +84,7 @@ class UserController extends Controller
         }
 
         $user->delete();
+        $this->audit('user.deleted', "Menghapus akun {$user->name} ({$user->email})");
 
         return redirect()->route('users.index')->with('success', "Akun {$user->name} berhasil dihapus.");
     }

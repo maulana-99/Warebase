@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Auth;
 
 use Illuminate\Auth\Events\Lockout;
+use App\Services\ActivityLogger;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -40,6 +41,8 @@ class LoginRequest extends FormRequest
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
             RateLimiter::hit($this->ipThrottleKey());
+            // Repeated failures for one email or IP are a sign of password guessing.
+            app(ActivityLogger::class)->log('auth.failed', 'Login gagal untuk email '.$this->string('email')->limit(100));
 
             throw ValidationException::withMessages([
                 'email' => __('auth.failed'),

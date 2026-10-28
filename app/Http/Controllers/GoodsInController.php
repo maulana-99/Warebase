@@ -62,6 +62,8 @@ class GoodsInController extends Controller
             throw ValidationException::withMessages(['items' => $e->getMessage()]);
         }
 
+        $this->audit('goods_in.recorded', "Mencatat barang masuk {$transaction->code}", $transaction);
+
         return redirect()->route('goods-in.show', $transaction)
             ->with('success', "Barang masuk {$transaction->code} berhasil dicatat. Stok sudah bertambah.");
     }

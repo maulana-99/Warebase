@@ -1,4 +1,4 @@
-@props(['products'])
+@props(['products', 'field' => 'quantity', 'fieldLabel' => 'Jumlah', 'min' => 1])
 
 {{-- Repeatable product + quantity rows. resources/js/app.js adds and removes rows. --}}
 @php
@@ -6,7 +6,7 @@
     $rows = collect(old('items', []))
         ->map(fn ($row) => is_array($row) ? array_map(fn ($value) => is_scalar($value) ? (string) $value : '', $row) : [])
         ->values()
-        ->all() ?: [['product_id' => '', 'quantity' => '']];
+        ->all() ?: [['product_id' => '', $field => '']];
 @endphp
 
 <fieldset data-items>
@@ -15,12 +15,12 @@
 
     <div data-item-list class="grid gap-3">
         @foreach ($rows as $i => $row)
-            @include('components.item-row', ['index' => $i, 'row' => $row])
+            @include('components.item-row', ['index' => $i, 'row' => $row, 'field' => $field, 'fieldLabel' => $fieldLabel, 'min' => $min])
         @endforeach
     </div>
 
     <template data-item-template>
-        @include('components.item-row', ['index' => '__INDEX__', 'row' => ['product_id' => '', 'quantity' => '']])
+        @include('components.item-row', ['index' => '__INDEX__', 'row' => [], 'field' => $field, 'fieldLabel' => $fieldLabel, 'min' => $min])
     </template>
 
     <button type="button" data-item-add class="btn-secondary mt-3"><x-icon name="plus" class="size-4" /> Tambah barang</button>

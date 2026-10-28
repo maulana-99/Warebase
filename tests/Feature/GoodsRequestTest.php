@@ -74,7 +74,7 @@ class GoodsRequestTest extends TestCase
     {
         $this->actingAs($this->staff)
             ->post('/requests', $this->validData(['items' => [['product_id' => $this->product->id, 'quantity' => 21]]]))
-            ->assertSessionHas('error');
+            ->assertSessionHasErrors('items');
 
         $this->assertSame(0, Transaction::count());
     }

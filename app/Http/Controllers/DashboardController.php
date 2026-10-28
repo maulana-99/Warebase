@@ -35,6 +35,7 @@ class DashboardController extends Controller
             'lowStockProducts' => Product::lowStock()->with('location')->orderBy('stock')->limit(5)->get(),
             'recentTransactions' => Transaction::with(['creator', 'supplier', 'department'])
                 ->withSum('items', 'quantity')
+                ->withCount('items')
                 ->latest()
                 ->limit(5)
                 ->get(),

@@ -154,7 +154,8 @@
                                 </td>
                                 <td class="px-5 py-4">{{ $transaction->type->label() }}</td>
                                 <td class="px-5 py-4">{{ $transaction->supplier?->name ?? $transaction->department?->name ?? '—' }}</td>
-                                <td class="px-5 py-4">{{ (int) $transaction->items_sum_quantity }}</td>
+                                {{-- Adjustment quantities are unsigned differences, so a sum would mislead; show the product count. --}}
+                                <td class="px-5 py-4">{{ $transaction->type === \App\Enums\TransactionType::Adjustment ? $transaction->items_count.' produk' : (int) $transaction->items_sum_quantity }}</td>
                                 <td class="px-5 py-4"><x-status-badge :status="$transaction->status" /></td>
                             </tr>
                         @empty

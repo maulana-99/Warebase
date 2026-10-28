@@ -8,6 +8,7 @@ use App\Exceptions\StockException;
 use App\Models\Product;
 use App\Models\Transaction;
 use App\Models\User;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -106,6 +107,67 @@ class StockService
     }
 
     /**
+     * Admin correction after a physical count (stock opname). For each product the admin enters the counted
+     * quantity; only products whose count differs from the system stock get an item. Approved at once.
+     * Each item stores the absolute difference as quantity; the direction is stock_after - stock_before.
+     *
+     * $countedSince is when the admin opened the count form. If any of these products moved after that,
+     * the count is stale and would erase that movement, so it is refused.
+     *
+     * @param  array{note: string}  $header
+     * @param  list<array{product_id: int, counted: int}>  $counts
+     *
+     * @throws StockException when the user is not an admin, the count is stale, or nothing differs.
+     */
+    public function adjustStock(User $admin, array $header, array $counts, CarbonInterface $countedSince): Transaction
+    {
+        if (! $admin->isAdmin()) {
+            throw new StockException('Hanya admin yang dapat menyesuaikan stok.');
+        }
+
+        return DB::transaction(function () use ($admin, $header, $counts, $countedSince) {
+            $products = $this->lockProducts(array_column($counts, 'product_id'));
+
+            $moved = Product::query()
+                ->whereIn('id', $products->keys())
+                ->whereHas('transactionItems.transaction', fn ($q) => $q->where('approved_at', '>=', $countedSince))
+                ->pluck('name');
+            if ($moved->isNotEmpty()) {
+                throw new StockException('Stok '.$moved->join(', ', ' dan ').' berubah setelah formulir dibuka. Hitung ulang produk tersebut lalu buka formulir baru.');
+            }
+
+            $items = [];
+            foreach ($counts as $row) {
+                $product = $products->get($row['product_id'])
+                    ?? throw new StockException('Salah satu produk sudah dihapus.');
+                // Validated input may still be a numeric string.
+                $counted = (int) $row['counted'];
+                if ($counted !== $product->stock) {
+                    $items[] = [
+                        'product_id' => $product->id,
+                        'quantity' => abs($counted - $product->stock),
+                        'stock_before' => $product->stock,
+                        'stock_after' => $counted,
+                    ];
+                }
+            }
+            if ($items === []) {
+                throw new StockException('Stok fisik sama dengan stok sistem. Tidak ada yang perlu disesuaikan.');
+            }
+
+            $transaction = $this->create($admin, TransactionType::Adjustment, ['transaction_date' => now()->toDateString()] + $header, $items);
+            foreach ($items as $item) {
+                $product = $products[$item['product_id']];
+                $product->stock = $item['stock_after'];
+                $product->save();
+            }
+            $this->markApproved($transaction, $admin);
+
+            return $transaction;
+        }, self::ATTEMPTS);
+    }
+
+    /**
      * Applies a pending transaction to the stock and marks it approved.
      * Private on purpose: callers go through recordGoodsIn() or approveRequest(), which carry the rules.
      *
@@ -140,10 +202,7 @@ class StockService
                 $product->save();
             }
 
-            $locked->status = TransactionStatus::Approved;
-            $locked->approved_by = $approver->id;
-            $locked->approved_at = now();
-            $locked->save();
+            $this->markApproved($locked, $approver);
 
             $transaction->setRawAttributes($locked->getAttributes(), true);
         }, self::ATTEMPTS);
@@ -183,13 +242,22 @@ class StockService
         $transaction->save();
 
         foreach ($items as $item) {
-            $transaction->items()->create([
-                'product_id' => $item['product_id'],
-                'quantity' => $item['quantity'],
-            ]);
+            $row = $transaction->items()->make(['product_id' => $item['product_id'], 'quantity' => $item['quantity']]);
+            // Only adjustments know before/after up front; other types fill them in on approval.
+            $row->stock_before = $item['stock_before'] ?? null;
+            $row->stock_after = $item['stock_after'] ?? null;
+            $row->save();
         }
 
         return $transaction;
+    }
+
+    private function markApproved(Transaction $transaction, User $approver): void
+    {
+        $transaction->status = TransactionStatus::Approved;
+        $transaction->approved_by = $approver->id;
+        $transaction->approved_at = now();
+        $transaction->save();
     }
 
     /**

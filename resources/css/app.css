@@ -28,6 +28,11 @@
     --color-rose: #f87171;
 }
 
+/* Interaction feedback shared by all buttons: hover brightens, press shrinks, busy dims. */
+@utility btn-base {
+    @apply inline-flex items-center justify-center gap-2 transition duration-150 ease-out select-none active:scale-[0.96] aria-busy:pointer-events-none aria-busy:opacity-70 disabled:active:scale-100;
+}
+
 @layer base {
     html {
         color-scheme: dark;
@@ -40,6 +45,23 @@
     :focus-visible {
         @apply outline-2 outline-offset-2 outline-sky;
     }
+
+    /* Tailwind v4 resets buttons to the default cursor; restore the pointer for everything clickable. */
+    button:not(:disabled),
+    [role='button'],
+    select,
+    summary,
+    label[for],
+    input[type='checkbox'],
+    input[type='radio'],
+    input[type='date'] {
+        cursor: pointer;
+    }
+
+    button:disabled,
+    [aria-disabled='true'] {
+        cursor: not-allowed;
+    }
 }
 
 @layer components {
@@ -48,15 +70,15 @@
     }
 
     .icon-btn {
-        @apply inline-flex size-10 items-center justify-center rounded-full bg-raised text-ink transition hover:bg-line;
+        @apply btn-base size-10 rounded-full bg-raised text-ink hover:bg-line hover:text-white active:bg-line/70;
     }
 
     .btn-primary {
-        @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-shell transition hover:bg-white disabled:opacity-50;
+        @apply btn-base rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-shell hover:bg-white hover:shadow-[0_6px_24px_-8px_rgb(255_255_255/0.45)] active:bg-ink/85 disabled:opacity-50;
     }
 
     .btn-secondary {
-        @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-raised px-5 py-3 text-sm font-medium text-ink transition hover:bg-line;
+        @apply btn-base rounded-2xl bg-raised px-5 py-3 text-sm font-medium text-ink hover:bg-line active:bg-line/70;
     }
 
     .input {
@@ -69,5 +91,16 @@
 
     .badge {
         @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;
+    }
+}
+
+@layer components {
+    .btn-danger {
+        @apply bg-rose text-shell hover:bg-rose/85 hover:shadow-[0_6px_24px_-8px_rgb(248_113_113/0.6)] active:bg-rose/75;
+    }
+
+    /* Spinner shown inside a button while its form is submitting. */
+    .spinner {
+        @apply size-4 animate-spin rounded-full border-2 border-current border-r-transparent;
     }
 }

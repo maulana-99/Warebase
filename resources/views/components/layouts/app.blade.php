@@ -33,7 +33,7 @@
                 @foreach ($menu as $item)
                     <a href="{{ route($item['route']) }}"
                        @class([
-                           'group relative flex size-11 items-center justify-center rounded-2xl transition',
+                           'group relative flex size-11 items-center justify-center rounded-2xl transition duration-150 active:scale-90',
                            'bg-ink text-shell' => $isActive($item),
                            'text-muted hover:bg-raised hover:text-ink' => ! $isActive($item),
                        ])
@@ -45,9 +45,9 @@
                 @endforeach
             </nav>
 
-            <form method="POST" action="{{ route('logout') }}">
+            <form method="POST" action="{{ route('logout') }}" data-confirm="Sesi Anda akan diakhiri. Pekerjaan yang belum disimpan akan hilang." data-confirm-title="Keluar dari Warebase?" data-confirm-button="Ya, keluar">
                 @csrf
-                <button type="submit" class="flex size-11 items-center justify-center rounded-2xl bg-raised text-ink transition hover:bg-line" aria-label="Keluar">
+                <button type="submit" class="flex size-11 items-center justify-center rounded-2xl bg-raised text-ink transition duration-150 hover:bg-rose/20 hover:text-rose active:scale-90" aria-label="Keluar">
                     <x-icon name="logout" />
                 </button>
             </form>
@@ -101,6 +101,8 @@
         </div>
     </div>
 
+    <x-confirm-dialog />
+
     {{-- Mobile drawer. --}}
     <div id="mobile-menu" class="fixed inset-0 z-40 hidden md:hidden" data-drawer role="dialog" aria-modal="true" aria-label="Menu">
         <div class="absolute inset-0 bg-black/70" data-drawer-close></div>
@@ -113,7 +115,7 @@
                 @foreach ($menu as $item)
                     <a href="{{ route($item['route']) }}"
                        @class([
-                           'flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium',
+                           'flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition active:scale-[0.98]',
                            'bg-ink text-shell' => $isActive($item),
                            'text-muted hover:bg-raised hover:text-ink' => ! $isActive($item),
                        ])
@@ -122,7 +124,7 @@
                     </a>
                 @endforeach
             </div>
-            <form method="POST" action="{{ route('logout') }}">
+            <form method="POST" action="{{ route('logout') }}" data-confirm="Sesi Anda akan diakhiri. Pekerjaan yang belum disimpan akan hilang." data-confirm-title="Keluar dari Warebase?" data-confirm-button="Ya, keluar">
                 @csrf
                 <button type="submit" class="btn-secondary w-full"><x-icon name="logout" /> Keluar</button>
             </form>

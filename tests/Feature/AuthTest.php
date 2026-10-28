@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Enums\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
@@ -18,40 +17,10 @@ class AuthTest extends TestCase
         $this->get('/')->assertRedirect('/dashboard');
     }
 
-    public function test_login_and_register_pages_render(): void
+    public function test_login_page_renders_and_public_registration_is_disabled(): void
     {
         $this->get('/login')->assertOk()->assertSee('Masuk');
-        $this->get('/register')->assertOk()->assertSee('Buat akun');
-    }
-
-    public function test_user_can_register_as_staff_and_cannot_choose_role(): void
-    {
-        $response = $this->post('/register', [
-            'name' => 'Siti Aminah',
-            'email' => 'siti@example.com',
-            'password' => 'rahasia123',
-            'password_confirmation' => 'rahasia123',
-            'role' => 'admin',
-        ]);
-
-        $response->assertRedirect('/dashboard');
-        $user = User::where('email', 'siti@example.com')->firstOrFail();
-        $this->assertSame(Role::Staff, $user->role);
-        $this->assertAuthenticatedAs($user);
-    }
-
-    public function test_register_validates_input(): void
-    {
-        User::factory()->create(['email' => 'taken@example.com']);
-
-        $this->post('/register', [
-            'name' => '',
-            'email' => 'taken@example.com',
-            'password' => 'short',
-            'password_confirmation' => 'different',
-        ])->assertSessionHasErrors(['name', 'email', 'password']);
-
-        $this->assertGuest();
+        $this->get('/register')->assertNotFound();
     }
 
     public function test_user_can_login_and_logout(): void

@@ -53,7 +53,8 @@
                 </div>
             </div>
 
-            <table class="sr-only">
+            <div class="sr-only">
+            <table>
                 <caption>Jumlah barang masuk dan keluar per hari, 7 hari terakhir</caption>
                 <thead><tr><th scope="col">Tanggal</th><th scope="col">Masuk</th><th scope="col">Keluar</th></tr></thead>
                 <tbody>
@@ -62,6 +63,7 @@
                     @endforeach
                 </tbody>
             </table>
+            </div>
 
             <div class="mt-6 flex min-h-56 flex-1 items-end gap-2 border-b border-dashed border-line sm:gap-4" aria-hidden="true">
                 @foreach ($movement as $day)

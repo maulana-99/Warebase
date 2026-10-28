@@ -27,7 +27,5 @@
         <button type="submit" class="btn-primary w-full">Masuk</button>
     </form>
 
-    <p class="mt-6 text-center text-sm text-muted">
-        Belum punya akun? <a href="{{ route('register') }}" class="font-semibold text-ink underline-offset-4 hover:underline">Daftar</a>
-    </p>
+    <p class="mt-6 text-center text-sm text-muted">Belum punya akun? Hubungi admin gudang.</p>
 </x-layouts.guest>

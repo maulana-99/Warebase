@@ -68,6 +68,8 @@ class GoodsRequestController extends Controller
             throw ValidationException::withMessages(['items' => $e->getMessage()]);
         }
 
+        $this->audit('request.created', "Membuat permintaan {$transaction->code}", $transaction);
+
         return redirect()->route('requests.show', $transaction)
             ->with('success', "Permintaan {$transaction->code} terkirim dan menunggu persetujuan admin.");
     }
@@ -94,6 +96,8 @@ class GoodsRequestController extends Controller
             return back()->with('error', $e->getMessage());
         }
 
+        $this->audit('request.approved', "Menyetujui permintaan {$transaction->code}", $transaction);
+
         return back()->with('success', "Permintaan {$transaction->code} disetujui. Stok sudah dikurangi.");
     }
 
@@ -109,6 +113,8 @@ class GoodsRequestController extends Controller
         } catch (StockException $e) {
             return back()->with('error', $e->getMessage());
         }
+
+        $this->audit('request.rejected', "Menolak permintaan {$transaction->code}", $transaction, ['reason' => $validated['reject_reason']]);
 
         return back()->with('success', "Permintaan {$transaction->code} ditolak.");
     }

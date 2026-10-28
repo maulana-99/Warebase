@@ -52,6 +52,7 @@ class ProductController extends Controller
     public function store(ProductRequest $request): RedirectResponse
     {
         $product = Product::create($request->validated());
+        $this->audit('product.created', "Menambah produk {$product->sku} {$product->name}", $product);
 
         return redirect()->route('products.index')->with('success', "Produk {$product->name} berhasil ditambahkan.");
     }
@@ -63,7 +64,9 @@ class ProductController extends Controller
 
     public function update(ProductRequest $request, Product $product): RedirectResponse
     {
+        $before = $product->getAttributes();
         $product->update($request->validated());
+        $this->audit('product.updated', "Mengubah produk {$product->sku} {$product->name}", $product, $this->changes($product, $before));
 
         return redirect()->route('products.index')->with('success', "Produk {$product->name} berhasil diperbarui.");
     }
@@ -77,6 +80,7 @@ class ProductController extends Controller
 
         // No history, so remove it for real. A soft delete would keep the unique SKU reserved.
         $product->forceDelete();
+        $this->audit('product.deleted', "Menghapus produk {$product->sku} {$product->name}");
 
         return redirect()->route('products.index')->with('success', "Produk {$product->name} berhasil dihapus.");
     }

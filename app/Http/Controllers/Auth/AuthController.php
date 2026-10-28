@@ -22,12 +22,14 @@ class AuthController extends Controller
 
         // New session id after login prevents session fixation.
         $request->session()->regenerate();
+        $this->audit('auth.login', 'Masuk ke aplikasi');
 
         return redirect()->intended(route('dashboard'));
     }
 
     public function logout(Request $request): RedirectResponse
     {
+        $this->audit('auth.logout', 'Keluar dari aplikasi');
         Auth::logout();
 
         $request->session()->invalidate();

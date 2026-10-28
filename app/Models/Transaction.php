@@ -39,6 +39,18 @@ class Transaction extends Model
         ];
     }
 
+    /**
+     * Detail page this user may open, or null. Mirrors the access rules of the three detail routes.
+     */
+    public function detailUrlFor(User $user): ?string
+    {
+        return match ($this->type) {
+            TransactionType::In => route('goods-in.show', $this),
+            TransactionType::Out => $user->isAdmin() || (int) $this->created_by === $user->id ? route('requests.show', $this) : null,
+            TransactionType::Adjustment => $user->isAdmin() ? route('adjustments.show', $this) : null,
+        };
+    }
+
     public function isPending(): bool
     {
         return $this->status === TransactionStatus::Pending;

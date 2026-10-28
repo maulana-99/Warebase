@@ -51,6 +51,8 @@ class AdjustmentController extends Controller
             throw ValidationException::withMessages(['items' => $e->getMessage()]);
         }
 
+        $this->audit('adjustment.recorded', "Menyesuaikan stok {$transaction->code}", $transaction);
+
         return redirect()->route('adjustments.show', $transaction)
             ->with('success', "Penyesuaian {$transaction->code} tersimpan. Stok sudah disesuaikan.");
     }

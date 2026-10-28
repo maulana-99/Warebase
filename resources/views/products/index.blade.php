@@ -45,7 +45,7 @@
                     @forelse ($products as $product)
                         <tr class="transition hover:bg-raised/40">
                             <td class="px-5 py-4">
-                                <p class="font-semibold">{{ $product->name }}</p>
+                                <a href="{{ route('products.stock-card', $product) }}" class="font-semibold underline-offset-4 hover:underline">{{ $product->name }}</a>
                                 <p class="text-xs text-subtle">{{ $product->sku }}</p>
                             </td>
                             <td class="px-5 py-4 text-muted">{{ $product->category->name }}</td>

@@ -1,0 +1,50 @@
+<x-layouts.app :heading="$transaction->type->label().' '.$transaction->code">
+    <div class="grid gap-5 lg:grid-cols-[1fr_20rem]">
+        <section class="card overflow-hidden p-0">
+            <h2 class="px-5 pt-5 text-lg font-semibold">Daftar barang</h2>
+            <div class="overflow-x-auto">
+                <table class="mt-3 w-full min-w-[36rem] text-left text-sm">
+                    <thead class="bg-raised/60 text-xs tracking-wide text-muted uppercase">
+                        <tr>
+                            <th scope="col" class="px-5 py-3 font-medium">Produk</th>
+                            <th scope="col" class="px-5 py-3 font-medium">Jumlah</th>
+                            <th scope="col" class="px-5 py-3 font-medium">Stok sebelum</th>
+                            <th scope="col" class="px-5 py-3 font-medium">Stok sesudah</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-line">
+                        @foreach ($transaction->items as $item)
+                            <tr>
+                                <td class="px-5 py-4">
+                                    <p class="font-semibold">{{ $item->product->name }}</p>
+                                    <p class="text-xs text-subtle">{{ $item->product->sku }}</p>
+                                </td>
+                                <td class="px-5 py-4">{{ $item->quantity }} {{ $item->product->unit }}</td>
+                                <td class="px-5 py-4 text-muted">{{ $item->stock_before ?? '-' }}</td>
+                                <td class="px-5 py-4 font-semibold">{{ $item->stock_after ?? '-' }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <aside class="card">
+            <dl class="grid gap-4 text-sm">
+                <div><dt class="text-muted">Status</dt><dd class="mt-1"><x-status-badge :status="$transaction->status" /></dd></div>
+                <div><dt class="text-muted">Tanggal</dt><dd class="mt-1 font-semibold">{{ $transaction->transaction_date->translatedFormat('l, j F Y') }}</dd></div>
+                @if ($transaction->supplier)
+                    <div><dt class="text-muted">Supplier</dt><dd class="mt-1 font-semibold">{{ $transaction->supplier->name }}</dd></div>
+                @endif
+                <div><dt class="text-muted">Dicatat oleh</dt><dd class="mt-1 font-semibold">{{ $transaction->creator->name }}</dd><dd class="text-xs text-subtle">{{ $transaction->created_at->translatedFormat('j M Y, H:i') }}</dd></div>
+                @if ($transaction->approver)
+                    <div><dt class="text-muted">Disetujui oleh</dt><dd class="mt-1 font-semibold">{{ $transaction->approver->name }}</dd><dd class="text-xs text-subtle">{{ $transaction->approved_at->translatedFormat('j M Y, H:i') }}</dd></div>
+                @endif
+                @if ($transaction->note)
+                    <div><dt class="text-muted">Catatan</dt><dd class="mt-1 whitespace-pre-line">{{ $transaction->note }}</dd></div>
+                @endif
+            </dl>
+            <a href="{{ $backRoute }}" class="btn-secondary mt-6 w-full justify-center">Kembali</a>
+        </aside>
+    </div>
+</x-layouts.app>

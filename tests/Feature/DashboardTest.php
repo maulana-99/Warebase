@@ -26,7 +26,8 @@ class DashboardTest extends TestCase
             ->assertOk()
             ->assertSee('Halo, Budi!')
             ->assertSee('Produk per Kategori')
-            ->assertSee('Pulpen Hitam'); // every seeded product starts at 0 stock, so it is low stock
+            ->assertSee(Product::lowStock()->orderBy('stock')->first()->name)
+            ->assertSee(Transaction::latest('id')->first()->code);
     }
 
     public function test_dashboard_counts_pending_requests_and_escapes_output(): void

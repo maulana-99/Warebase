@@ -4,6 +4,70 @@
 @source '../../storage/framework/views/*.php';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    --font-sans: 'Urbanist', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Surfaces: page, app shell, cards, raised controls. */
+    --color-canvas: #2a2a2d;
+    --color-shell: #050506;
+    --color-panel: #17171b;
+    --color-raised: #26262c;
+    --color-line: #2e2e35;
+
+    /* Text. */
+    --color-ink: #f5f5f7;
+    --color-muted: #9a9aa3;
+    --color-subtle: #6b6b74;
+
+    /* Accents (pastel status colors from the design). */
+    --color-brand: #1747e0;
+    --color-sky: #7c9cf5;
+    --color-peach: #f2a06c;
+    --color-sun: #fde68a;
+    --color-mint: #86efac;
+    --color-rose: #f87171;
+}
+
+@layer base {
+    html {
+        color-scheme: dark;
+    }
+
+    body {
+        @apply bg-canvas font-sans text-ink antialiased;
+    }
+
+    :focus-visible {
+        @apply outline-2 outline-offset-2 outline-sky;
+    }
+}
+
+@layer components {
+    .card {
+        @apply rounded-3xl bg-panel p-5;
+    }
+
+    .icon-btn {
+        @apply inline-flex size-10 items-center justify-center rounded-full bg-raised text-ink transition hover:bg-line;
+    }
+
+    .btn-primary {
+        @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-shell transition hover:bg-white disabled:opacity-50;
+    }
+
+    .btn-secondary {
+        @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-raised px-5 py-3 text-sm font-medium text-ink transition hover:bg-line;
+    }
+
+    .input {
+        @apply w-full rounded-2xl border border-transparent bg-raised px-4 py-3 text-sm text-ink placeholder:text-subtle focus:border-sky focus:outline-none;
+    }
+
+    .label {
+        @apply mb-1.5 block text-sm font-medium text-muted;
+    }
+
+    .badge {
+        @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;
+    }
 }

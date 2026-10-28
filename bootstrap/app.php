@@ -13,8 +13,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Hosting platforms (Railway, Render) sit behind a proxy; trust it so request IPs are real.
-        $middleware->trustProxies(at: '*');
+        // Behind Dokploy's Traefik the request comes from a private Docker network address. Trusting only
+        // private ranges keeps real client IPs while stopping clients from faking X-Forwarded-For directly.
+        $middleware->trustProxies(at: explode(',', env('TRUSTED_PROXIES', '10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,127.0.0.1')));
 
         $middleware->alias([
             'role' => EnsureUserHasRole::class,

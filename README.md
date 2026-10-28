@@ -216,6 +216,36 @@ Test otomatis memakai database terpisah bernama `warebase_test`. Jika memakai Do
 php artisan test
 ```
 
+## Deploy ke Server (Dokploy)
+
+Aplikasi dideploy sebagai satu container dari `Dockerfile` (PHP 8.5.12 + Apache; CSS/JS di-build saat image dibuat, jadi server tidak butuh Node.js). Database MySQL berjalan sebagai service terpisah di Dokploy.
+
+1. **Database**: di Dokploy buat *Database → MySQL* dengan image `mysql:8.4`, database `warebase`, user `warebase`, password hasil generate. Jangan isi *External Port* agar database tidak terbuka ke internet. Klik **Deploy**.
+2. **Aplikasi**: buat *Application* dari repository GitHub ini, *Build Type* `Dockerfile`, port container `80`.
+3. **Environment** aplikasi:
+
+```env
+APP_NAME=Warebase
+APP_ENV=production
+APP_DEBUG=false
+APP_KEY=base64:...        # buat dengan: php artisan key:generate --show
+APP_URL=https://domain-anda
+APP_LOCALE=id
+LOG_CHANNEL=stderr
+SESSION_SECURE_COOKIE=true
+DB_CONNECTION=mysql
+DB_HOST=nama-app-database  # "App Name" database di Dokploy
+DB_PORT=3306
+DB_DATABASE=warebase
+DB_USERNAME=warebase
+DB_PASSWORD=...           # password database dari Dokploy
+```
+
+4. **Domain**: tambahkan domain di tab *Domains* dengan HTTPS (Let's Encrypt), lalu **Deploy**. Setiap container dijalankan, migrasi database berjalan otomatis (`docker/entrypoint.sh`).
+5. **Data contoh** (sekali saja): buka tab *Terminal/Advanced* aplikasi dan jalankan `php artisan db:seed --force` untuk membuat akun contoh dan stok awal.
+
+Pengaturan keamanan di image: `APP_DEBUG=false`, `expose_php=Off`, `session.upload_progress.enabled=0`, header keamanan Apache, dan proxy yang dipercaya hanya alamat jaringan privat (Traefik Dokploy), bisa diubah lewat `TRUSTED_PROXIES`.
+
 ## Aplikasi Online
 
 - Live app: _menyusul_

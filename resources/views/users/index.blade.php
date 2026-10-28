@@ -11,7 +11,7 @@
 
     <div class="card overflow-hidden p-0">
         <div class="overflow-x-auto">
-            <table class="w-full min-w-[40rem] text-left text-sm">
+            <table class="table-stack w-full min-w-[40rem] text-left text-sm">
                 <thead class="bg-raised/60 text-xs tracking-wide text-muted uppercase">
                     <tr>
                         <th scope="col" class="px-5 py-3 font-medium">Nama</th>

@@ -27,7 +27,7 @@
 
     <div class="card overflow-hidden p-0">
         <div class="overflow-x-auto">
-            <table class="w-full min-w-[48rem] text-left text-sm">
+            <table class="table-stack w-full min-w-[48rem] text-left text-sm">
                 <caption class="sr-only">Daftar produk</caption>
                 <thead class="bg-raised/60 text-xs tracking-wide text-muted uppercase">
                     <tr>
@@ -52,9 +52,7 @@
                             <td class="px-5 py-4 text-muted">{{ $product->location?->code ?? '-' }}</td>
                             <td class="px-5 py-4">
                                 <span class="font-semibold">{{ $product->stock }}</span> <span class="text-muted">{{ $product->unit }}</span>
-                                @if ($product->isLowStock())
-                                    <span class="badge ml-1 bg-rose/15 text-danger">Menipis</span>
-                                @endif
+                                <x-stock-badge :product="$product" class="ml-1" />
                             </td>
                             <td class="px-5 py-4 text-muted">{{ $product->min_stock }}</td>
                             @if (auth()->user()->isAdmin())

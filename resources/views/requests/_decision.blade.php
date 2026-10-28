@@ -3,7 +3,7 @@
     <form method="POST" action="{{ route('requests.approve', $transaction) }}"
           data-confirm="Stok semua barang di permintaan ini akan langsung dikurangi." data-confirm-title="Setujui permintaan?" data-confirm-button="Ya, setujui" data-confirm-tone="neutral">
         @csrf
-        <button type="submit" class="btn-primary w-full justify-center"><x-icon name="check" class="size-4" /> Setujui</button>
+        <button type="submit" class="btn-primary btn-success w-full justify-center"><x-icon name="check" class="size-4" /> Setujui</button>
     </form>
 
     <form method="POST" action="{{ route('requests.reject', $transaction) }}" novalidate

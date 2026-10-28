@@ -24,12 +24,12 @@
 
     <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
         {{-- Stat cards. --}}
-        <section aria-label="Ringkasan" class="grid gap-4 sm:grid-cols-2">
+        <section aria-label="Ringkasan" class="grid grid-cols-2 gap-3 sm:gap-4">
             <x-stat-card label="Total produk" :value="number_format($stats['products'], 0, ',', '.')" hint="Jenis barang terdaftar" highlight
                          :href="Route::has('products.index') ? route('products.index') : null" />
             <x-stat-card label="Stok menipis" :value="$stats['lowStock']" hint="Stok di bawah batas minimum"
-                         :tone="$stats['lowStock'] > 0 ? 'danger' : 'success'"
-                         :href="Route::has('products.index') ? route('products.index', ['filter' => 'low']) : null">
+                         :tone="$stats['lowStock'] > 0 ? 'warning' : 'success'"
+                         :href="Route::has('products.index') ? route('products.index', ['low' => 1]) : null">
                 {{ $stats['lowStock'] > 0 ? 'Perlu restok' : 'Aman' }}
             </x-stat-card>
             <x-stat-card label="Menunggu persetujuan" :value="$stats['pendingRequests']" hint="Permintaan barang keluar"
@@ -89,17 +89,39 @@
 
     <div class="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
         {{-- Attention cards. --}}
-        <section aria-label="Perlu perhatian" class="grid gap-4 sm:grid-cols-2">
-            <div class="card flex min-h-56 flex-col">
-                <span class="flex size-11 items-center justify-center rounded-full bg-raised"><x-icon name="clipboard-list" /></span>
-                <p class="mt-auto text-5xl font-semibold">{{ $stats['pendingRequests'] }} <span class="text-2xl font-medium">permintaan</span></p>
-                <p class="mt-2 text-sm text-muted">{{ $stats['pendingRequests'] }} permintaan <span class="text-danger">sedang menunggu</span> persetujuan admin.</p>
-            </div>
-            <div class="card flex min-h-56 flex-col">
-                <span class="flex size-11 items-center justify-center rounded-full bg-raised"><x-icon name="alert" /></span>
-                <p class="mt-auto text-5xl font-semibold">{{ $stats['lowStock'] }} <span class="text-2xl font-medium">produk</span></p>
-                <p class="mt-2 text-sm text-muted">{{ $stats['lowStock'] }} produk <span class="text-danger">hampir habis</span> dan perlu dipesan ulang.</p>
-            </div>
+        <section aria-label="Perlu perhatian" class="grid grid-cols-2 gap-3 sm:gap-4">
+            @php($pending = $stats['pendingRequests'])
+            <a href="{{ Route::has('requests.index') ? route('requests.index', ['status' => 'pending']) : '#' }}" @class([
+                'card flex min-h-40 flex-col transition hover:ring-2 sm:min-h-56',
+                'bg-sun/15 hover:ring-sun/60' => $pending > 0,
+                'hover:ring-line' => $pending === 0,
+            ])>
+                <span @class(['flex size-11 items-center justify-center rounded-full', 'bg-sun text-on-accent' => $pending > 0, 'bg-raised' => $pending === 0])><x-icon name="clipboard-list" /></span>
+                <p class="mt-auto text-4xl font-semibold sm:text-5xl">{{ $pending }} <span class="text-lg font-medium sm:text-2xl">permintaan</span></p>
+                <p class="mt-2 text-sm text-muted">
+                    @if ($pending > 0)
+                        <span class="font-medium text-warning">Menunggu persetujuan</span> admin.
+                    @else
+                        <span class="font-medium text-success">Semua sudah diputuskan.</span>
+                    @endif
+                </p>
+            </a>
+            @php($low = $stats['lowStock'])
+            <a href="{{ route('products.index', ['low' => 1]) }}" @class([
+                'card flex min-h-40 flex-col transition hover:ring-2 sm:min-h-56',
+                'bg-sun/15 hover:ring-sun/60' => $low > 0,
+                'hover:ring-line' => $low === 0,
+            ])>
+                <span @class(['flex size-11 items-center justify-center rounded-full', 'bg-sun text-on-accent' => $low > 0, 'bg-mint text-on-accent' => $low === 0])><x-icon :name="$low > 0 ? 'alert' : 'check'" /></span>
+                <p class="mt-auto text-4xl font-semibold sm:text-5xl">{{ $low }} <span class="text-lg font-medium sm:text-2xl">produk</span></p>
+                <p class="mt-2 text-sm text-muted">
+                    @if ($low > 0)
+                        <span class="font-medium text-warning">Hampir habis</span>, perlu dipesan ulang.
+                    @else
+                        <span class="font-medium text-success">Stok semua produk aman.</span>
+                    @endif
+                </p>
+            </a>
         </section>
 
         {{-- Category donut. --}}
@@ -135,7 +157,7 @@
         <section class="card overflow-hidden p-0" aria-labelledby="recent-title">
             <h2 id="recent-title" class="px-5 pt-5 text-lg font-semibold">Transaksi Terbaru</h2>
             <div class="mt-4 overflow-x-auto">
-                <table class="w-full min-w-[36rem] text-left text-sm">
+                <table class="table-stack w-full min-w-[36rem] text-left text-sm">
                     <thead class="bg-raised/60 text-xs tracking-wide text-muted uppercase">
                         <tr>
                             <th scope="col" class="px-5 py-3 font-medium">Kode</th>
@@ -152,7 +174,7 @@
                                     <p class="font-semibold">{{ $transaction->code }}</p>
                                     <p class="text-xs text-subtle">{{ $transaction->transaction_date->translatedFormat('j M Y') }} · {{ $transaction->creator->name }}</p>
                                 </td>
-                                <td class="px-5 py-4">{{ $transaction->type->label() }}</td>
+                                <td class="px-5 py-4"><x-type-badge :type="$transaction->type" /></td>
                                 <td class="px-5 py-4">{{ $transaction->supplier?->name ?? $transaction->department?->name ?? '—' }}</td>
                                 {{-- Adjustment quantities are unsigned differences, so a sum would mislead; show the product count. --}}
                                 <td class="px-5 py-4">{{ $transaction->type === \App\Enums\TransactionType::Adjustment ? $transaction->items_count.' produk' : (int) $transaction->items_sum_quantity }}</td>
@@ -177,7 +199,7 @@
                             <p class="text-xs text-subtle">{{ $product->sku }} · Rak {{ $product->location?->code ?? '—' }}</p>
                         </div>
                         <p class="text-right text-sm">
-                            <span class="font-semibold text-danger">{{ $product->stock }}</span>
+                            <span @class(['font-semibold', 'text-danger' => $product->stock === 0, 'text-warning' => $product->stock > 0])>{{ $product->stock }}</span>
                             <span class="text-subtle">/ {{ $product->min_stock }} {{ $product->unit }}</span>
                         </p>
                     </li>

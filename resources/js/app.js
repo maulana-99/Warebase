@@ -255,3 +255,24 @@ document.addEventListener('submit', async (event) => {
         showModalError('Tidak dapat terhubung ke server. Periksa koneksi lalu coba lagi.');
     }
 });
+
+// Phone layout for .table-stack tables: give each cell its column name so CSS can show it as a label.
+// Explicit ARIA roles keep the table readable by screen readers after CSS turns rows into blocks.
+document.querySelectorAll('table.table-stack').forEach((table) => {
+    table.setAttribute('role', 'table');
+    table.querySelectorAll('thead, tbody, tfoot').forEach((group) => group.setAttribute('role', 'rowgroup'));
+    table.querySelectorAll('tr').forEach((row) => row.setAttribute('role', 'row'));
+    table.querySelectorAll('thead th').forEach((th) => th.setAttribute('role', 'columnheader'));
+    table.querySelectorAll('tbody th, tfoot th').forEach((th) => th.setAttribute('role', 'rowheader'));
+    table.querySelectorAll('td').forEach((td) => td.setAttribute('role', 'cell'));
+
+    // A header that only holds screen-reader text (e.g. the "Detail" button column) gets no visible label.
+    const labels = [...table.querySelectorAll('thead th')].map((th) =>
+        th.textContent.trim() === th.querySelector('.sr-only')?.textContent.trim() ? '' : th.textContent.trim(),
+    );
+    table.querySelectorAll('tbody tr, tfoot tr').forEach((row) => {
+        [...row.cells].forEach((cell, index) => {
+            if (cell.colSpan === 1) cell.dataset.label = labels[index] ?? '';
+        });
+    });
+});

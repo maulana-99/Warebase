@@ -60,7 +60,8 @@
         --color-mint: #5fd88a;
         --color-rose: #f26b6b;
         --color-success: #15803d;
-        --color-warning: #a16207;
+        /* Dark enough for AA contrast on the pale sun-tinted badges. */
+        --color-warning: #854d0e;
         --color-danger: #dc2626;
         --color-info: #2563eb;
     }
@@ -132,6 +133,10 @@
         @apply bg-rose text-on-accent hover:bg-rose/85 hover:shadow-[0_6px_24px_-8px_rgb(248_113_113/0.6)] active:bg-rose/75;
     }
 
+    .btn-success {
+        @apply bg-mint text-on-accent hover:bg-mint/85 hover:shadow-[0_6px_24px_-8px_rgb(134_239_172/0.6)] active:bg-mint/75;
+    }
+
     /* Spinner shown inside a button while its form is submitting. */
     .spinner {
         @apply size-4 animate-spin rounded-full border-2 border-current border-r-transparent;
@@ -142,4 +147,76 @@
 :root[data-theme='dark'] .theme-icon-moon,
 :root[data-theme='light'] .theme-icon-sun {
     display: none;
+}
+
+/*
+ * Tables marked .table-stack become one card per row on phones: the header is hidden and every cell
+ * shows its column name (data-label, copied from <th> by app.js). Wider screens keep the normal table.
+ */
+@media (max-width: 639px) {
+    .table-stack {
+        min-width: 0 !important;
+    }
+
+    .table-stack thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+
+    .table-stack tbody,
+    .table-stack tfoot,
+    .table-stack tr,
+    .table-stack td,
+    .table-stack tfoot th {
+        display: block;
+        width: 100%;
+    }
+
+    .table-stack tr {
+        padding: 0.75rem 1rem;
+    }
+
+    /* Label floats left, the cell's own content stays together on the right. */
+    .table-stack td,
+    .table-stack tfoot th {
+        display: flow-root;
+        padding: 0.3rem 0 !important;
+        text-align: right !important;
+        max-width: none !important;
+        white-space: normal !important;
+    }
+
+    .table-stack td[data-label]::before {
+        content: attr(data-label);
+        float: left;
+        margin-right: 1rem;
+        font-size: 0.75rem;
+        color: var(--color-subtle);
+        text-align: left;
+    }
+
+    /* First cell is the row's title, and a lone action cell needs no label. */
+    .table-stack td:first-child,
+    .table-stack td[data-label='']:last-child {
+        display: block;
+        text-align: left !important;
+    }
+
+    .table-stack td:first-child::before,
+    .table-stack td[data-label='']::before {
+        content: none;
+    }
+
+    .table-stack td[data-label=''] > div {
+        justify-content: flex-end;
+        margin-top: 0.25rem;
+    }
+
+    .table-stack td[data-label='']:last-child {
+        text-align: right !important;
+    }
 }

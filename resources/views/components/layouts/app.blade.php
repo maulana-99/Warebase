@@ -24,7 +24,7 @@
 
     <div data-app-shell class="flex min-h-screen bg-shell md:min-h-[calc(100vh-3rem)] md:rounded-[2rem]">
         {{-- Desktop: icon rail. --}}
-        <aside class="sticky top-0 hidden print:hidden h-screen w-24 shrink-0 flex-col items-center border-r border-line/60 py-6 md:flex md:h-[calc(100vh-3rem)]">
+        <aside class="sticky top-0 z-30 hidden print:hidden h-screen w-24 shrink-0 flex-col items-center border-r border-line/60 py-6 md:flex md:h-[calc(100vh-3rem)]">
             <a href="{{ route('dashboard') }}" class="mb-10 text-ink" aria-label="Warebase, ke dashboard">
                 <x-logo />
             </a>
@@ -60,12 +60,6 @@
                     <x-icon name="menu" />
                 </button>
 
-                <form action="{{ Route::has('products.index') ? route('products.index') : '#' }}" method="GET" role="search" class="relative hidden max-w-xs flex-1 sm:block">
-                    <label for="global-search" class="sr-only">Cari produk</label>
-                    <x-icon name="search" class="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-subtle" />
-                    <input id="global-search" name="q" type="search" placeholder="Cari produk…" class="input pl-11">
-                </form>
-
                 <p class="hidden text-sm font-semibold lg:block">{{ now()->translatedFormat('l, j F Y') }}</p>
 
                 <div class="ml-auto flex items-center gap-3">
@@ -80,7 +74,7 @@
                 </div>
             </header>
 
-            <main id="main" tabindex="-1" class="flex-1 px-4 pt-6 pb-10 sm:px-6">
+            <main id="main" tabindex="-1" class="min-w-0 flex-1 px-4 pt-6 pb-10 sm:px-6">
                 @if ($heading)
                     <h1 class="mb-6 text-3xl font-bold sm:text-4xl">{{ $heading }}</h1>
                 @endif

@@ -1,12 +1,12 @@
 <x-layouts.app heading="Penyesuaian Stok">
     <div class="mb-5 flex flex-wrap items-center gap-3">
-        <p class="max-w-xl text-sm text-muted">Catat hasil hitung fisik (stock opname). Hanya produk yang jumlahnya berbeda dari stok sistem yang disesuaikan.</p>
+        <p class="flex max-w-xl items-start gap-2 rounded-2xl bg-sky/10 px-4 py-3 text-sm text-info"><x-icon name="scale" class="mt-0.5 size-4 shrink-0" /> Catat hasil hitung fisik (stock opname). Hanya produk yang jumlahnya berbeda dari stok sistem yang disesuaikan.</p>
         <a data-form-modal href="{{ route('adjustments.create') }}" class="btn-primary ml-auto"><x-icon name="plus" class="size-4" /> Buat penyesuaian</a>
     </div>
 
     <div class="card overflow-hidden p-0">
         <div class="overflow-x-auto">
-            <table class="w-full min-w-[44rem] text-left text-sm">
+            <table class="table-stack w-full min-w-[44rem] text-left text-sm">
                 <caption class="sr-only">Daftar penyesuaian stok</caption>
                 <thead class="bg-raised/60 text-xs tracking-wide text-muted uppercase">
                     <tr>

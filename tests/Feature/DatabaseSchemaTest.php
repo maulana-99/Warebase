@@ -134,4 +134,14 @@ class DatabaseSchemaTest extends TestCase
 
         DB::table('transactions')->where('id', $transaction->id)->update(['type' => 'gift']);
     }
+
+    public function test_seeding_twice_does_not_duplicate_demo_data(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+        $counts = [User::count(), Product::count(), \App\Models\Transaction::count(), (int) Product::sum('stock')];
+
+        $this->seed(DatabaseSeeder::class);
+
+        $this->assertSame($counts, [User::count(), Product::count(), \App\Models\Transaction::count(), (int) Product::sum('stock')]);
+    }
 }

@@ -60,12 +60,6 @@
                     <x-icon name="menu" />
                 </button>
 
-                <form action="{{ Route::has('products.index') ? route('products.index') : '#' }}" method="GET" role="search" class="relative hidden max-w-xs flex-1 sm:block">
-                    <label for="global-search" class="sr-only">Cari produk</label>
-                    <x-icon name="search" class="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-subtle" />
-                    <input id="global-search" name="q" type="search" placeholder="Cari produk…" class="input pl-11">
-                </form>
-
                 <p class="hidden text-sm font-semibold lg:block">{{ now()->translatedFormat('l, j F Y') }}</p>
 
                 <div class="ml-auto flex items-center gap-3">

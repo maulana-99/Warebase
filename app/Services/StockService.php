@@ -45,11 +45,73 @@ class StockService
     }
 
     /**
+     * A request to take goods out for a department. Stays pending until an admin decides; stock is untouched.
+     *
+     * @param  array{department_id: int, recipient_name: string, transaction_date: string, note?: string|null}  $header
+     * @param  list<array{product_id: int, quantity: int}>  $items
+     *
+     * @throws StockException when a product does not have enough stock right now.
+     */
+    public function requestGoodsOut(User $user, array $header, array $items): Transaction
+    {
+        return DB::transaction(function () use ($user, $header, $items) {
+            // Early check so nobody files a request that can never be approved. Approval checks again.
+            $products = $this->lockProducts(array_column($items, 'product_id'));
+            foreach ($items as $item) {
+                $product = $products->get($item['product_id'])
+                    ?? throw new StockException('Salah satu produk sudah dihapus.');
+                if ($item['quantity'] > $product->stock) {
+                    throw new StockException("Stok {$product->name} tidak cukup: tersedia {$product->stock} {$product->unit}, diminta {$item['quantity']}.");
+                }
+            }
+
+            return $this->create($user, TransactionType::Out, $header, $items);
+        }, self::ATTEMPTS);
+    }
+
+    /**
+     * Admin approves a goods-out request: stock goes down.
+     *
+     * @throws StockException when the decision is not allowed or stock is no longer enough.
+     */
+    public function approveRequest(Transaction $transaction, User $admin): void
+    {
+        $this->ensureCanDecide($transaction, $admin);
+        $this->approve($transaction, $admin);
+    }
+
+    /**
+     * Admin rejects a goods-out request with a reason: stock is untouched.
+     *
+     * @throws StockException when the decision is not allowed.
+     */
+    public function rejectRequest(Transaction $transaction, User $admin, string $reason): void
+    {
+        $this->ensureCanDecide($transaction, $admin);
+
+        DB::transaction(function () use ($transaction, $admin, $reason) {
+            $locked = Transaction::query()->lockForUpdate()->findOrFail($transaction->id);
+            if (! $locked->isPending()) {
+                throw new StockException("Transaksi {$locked->code} sudah {$locked->status->label()}.");
+            }
+
+            $locked->status = TransactionStatus::Rejected;
+            $locked->approved_by = $admin->id;
+            $locked->approved_at = now();
+            $locked->reject_reason = $reason;
+            $locked->save();
+
+            $transaction->setRawAttributes($locked->getAttributes(), true);
+        }, self::ATTEMPTS);
+    }
+
+    /**
      * Applies a pending transaction to the stock and marks it approved.
+     * Private on purpose: callers go through recordGoodsIn() or approveRequest(), which carry the rules.
      *
      * @throws StockException when the transaction is no longer pending or stock would go below zero.
      */
-    public function approve(Transaction $transaction, User $approver): void
+    private function approve(Transaction $transaction, User $approver): void
     {
         DB::transaction(function () use ($transaction, $approver) {
             // Lock the transaction row first so it cannot be approved twice at the same time.
@@ -128,6 +190,23 @@ class StockService
         }
 
         return $transaction;
+    }
+
+    /**
+     * Separation of duties: only an admin decides, and never on a request they made themselves.
+     * Checked here, not only in the controller, so no future caller can skip it.
+     */
+    private function ensureCanDecide(Transaction $transaction, User $admin): void
+    {
+        if ($transaction->type !== TransactionType::Out) {
+            throw new StockException('Hanya permintaan barang keluar yang dapat disetujui atau ditolak.');
+        }
+        if (! $admin->isAdmin()) {
+            throw new StockException('Hanya admin yang dapat memutuskan permintaan.');
+        }
+        if ((int) $transaction->created_by === $admin->id) {
+            throw new StockException('Anda tidak dapat memutuskan permintaan yang Anda buat sendiri. Minta admin lain untuk memeriksanya.');
+        }
     }
 
     private function direction(TransactionType $type): int

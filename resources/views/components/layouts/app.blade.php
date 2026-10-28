@@ -24,7 +24,7 @@
 
     <div data-app-shell class="flex min-h-screen bg-shell md:min-h-[calc(100vh-3rem)] md:rounded-[2rem]">
         {{-- Desktop: icon rail. --}}
-        <aside class="sticky top-0 hidden print:hidden h-screen w-24 shrink-0 flex-col items-center border-r border-line/60 py-6 md:flex md:h-[calc(100vh-3rem)]">
+        <aside class="sticky top-0 z-30 hidden print:hidden h-screen w-24 shrink-0 flex-col items-center border-r border-line/60 py-6 md:flex md:h-[calc(100vh-3rem)]">
             <a href="{{ route('dashboard') }}" class="mb-10 text-ink" aria-label="Warebase, ke dashboard">
                 <x-logo />
             </a>

@@ -47,7 +47,7 @@
 
             <form method="POST" action="{{ route('logout') }}" data-confirm="Sesi Anda akan diakhiri. Pekerjaan yang belum disimpan akan hilang." data-confirm-title="Keluar dari Warebase?" data-confirm-button="Ya, keluar">
                 @csrf
-                <button type="submit" class="flex size-11 items-center justify-center rounded-2xl bg-raised text-ink transition duration-150 hover:bg-rose/20 hover:text-danger active:scale-90" aria-label="Keluar">
+                <button type="submit" class="flex size-11 items-center justify-center rounded-2xl bg-rose/15 text-danger transition duration-150 hover:bg-rose/30 active:scale-90" aria-label="Keluar">
                     <x-icon name="logout" />
                 </button>
             </form>
@@ -122,7 +122,7 @@
             </div>
             <form method="POST" action="{{ route('logout') }}" data-confirm="Sesi Anda akan diakhiri. Pekerjaan yang belum disimpan akan hilang." data-confirm-title="Keluar dari Warebase?" data-confirm-button="Ya, keluar">
                 @csrf
-                <button type="submit" class="btn-secondary w-full"><x-icon name="logout" /> Keluar</button>
+                <button type="submit" class="btn-secondary w-full bg-rose/15 text-danger hover:bg-rose/30"><x-icon name="logout" /> Keluar</button>
             </form>
         </nav>
     </div>

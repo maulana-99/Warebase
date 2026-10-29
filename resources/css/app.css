@@ -191,6 +191,15 @@
         @apply bg-mint text-on-accent hover:bg-mint/85 hover:shadow-[0_6px_24px_-8px_rgb(134_239_172/0.6)] active:bg-mint/75;
     }
 
+    /* Action colors are always visible, not only on hover: blue edits, red deletes. */
+    .icon-btn-info {
+        @apply bg-sky/15 text-info hover:bg-sky/30 hover:text-info active:bg-sky/40;
+    }
+
+    .icon-btn-danger {
+        @apply bg-rose/15 text-danger hover:bg-rose/30 hover:text-danger active:bg-rose/40;
+    }
+
     /* Spinner shown inside a button while its form is submitting. */
     .spinner {
         @apply size-4 animate-spin rounded-full border-2 border-current border-r-transparent;

@@ -58,12 +58,12 @@
                             @if (auth()->user()->isAdmin())
                                 <td class="px-5 py-4">
                                     <div class="flex justify-end gap-2">
-                                        <a data-form-modal href="{{ route('products.edit', $product) }}" class="icon-btn" aria-label="Ubah {{ $product->name }}"><x-icon name="pencil" class="size-4" /></a>
+                                        <a data-form-modal href="{{ route('products.edit', $product) }}" class="icon-btn icon-btn-info" aria-label="Ubah {{ $product->name }}"><x-icon name="pencil" class="size-4" /></a>
                                         <form method="POST" action="{{ route('products.destroy', $product) }}"
                                               data-confirm="Produk {{ $product->name }} akan dihapus permanen." data-confirm-title="Hapus produk?" data-confirm-button="Ya, hapus">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="icon-btn hover:bg-rose/20 hover:text-danger" aria-label="Hapus {{ $product->name }}"><x-icon name="trash" class="size-4" /></button>
+                                            <button type="submit" class="icon-btn icon-btn-danger" aria-label="Hapus {{ $product->name }}"><x-icon name="trash" class="size-4" /></button>
                                         </form>
                                     </div>
                                 </td>

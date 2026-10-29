@@ -20,5 +20,5 @@
                @error("items.$index.$field") aria-invalid="true" @enderror>
         @error("items.$index.$field")<p class="mt-1.5 text-xs text-danger">{{ $message }}</p>@enderror
     </div>
-    <button type="button" data-item-remove class="icon-btn mt-1 hover:bg-rose/20 hover:text-danger" aria-label="Hapus baris"><x-icon name="trash" class="size-4" /></button>
+    <button type="button" data-item-remove class="icon-btn icon-btn-danger mt-1" aria-label="Hapus baris"><x-icon name="trash" class="size-4" /></button>
 </div>

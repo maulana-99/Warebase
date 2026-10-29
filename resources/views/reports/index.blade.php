@@ -65,9 +65,9 @@
                                     <p class="text-xs text-subtle">{{ $product->sku }} · {{ $product->category->name }}</p>
                                 </td>
                                 <td class="px-5 py-3 text-right">{{ $product->opening }}</td>
-                                <td class="px-5 py-3 text-right text-success">{{ $product->qty_in ?: '' }}</td>
-                                <td class="px-5 py-3 text-right text-danger">{{ $product->qty_out ?: '' }}</td>
-                                <td class="px-5 py-3 text-right">{{ $product->qty_adjustment ? ($product->qty_adjustment > 0 ? '+' : '−').abs($product->qty_adjustment) : '' }}</td>
+                                <td @class(['px-5 py-3 text-right', 'text-success' => $product->qty_in, 'text-subtle' => ! $product->qty_in])>{{ $product->qty_in ?: '–' }}</td>
+                                <td @class(['px-5 py-3 text-right', 'text-danger' => $product->qty_out, 'text-subtle' => ! $product->qty_out])>{{ $product->qty_out ?: '–' }}</td>
+                                <td @class(['px-5 py-3 text-right', 'text-subtle' => ! $product->qty_adjustment])>{{ $product->qty_adjustment ? ($product->qty_adjustment > 0 ? '+' : '−').abs($product->qty_adjustment) : '–' }}</td>
                                 <td class="px-5 py-3 text-right font-semibold">{{ $product->closing }} <span class="font-normal text-muted">{{ $product->unit }}</span></td>
                             </tr>
                         @empty

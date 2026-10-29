@@ -24,7 +24,7 @@
 
     <div data-app-shell class="flex min-h-screen bg-shell md:min-h-[calc(100vh-3rem)] md:rounded-[2rem]">
         {{-- Desktop: icon rail. --}}
-        <aside class="sticky top-0 z-30 hidden print:hidden h-screen w-24 shrink-0 flex-col items-center border-r border-line/60 py-6 md:flex md:h-[calc(100vh-3rem)]">
+        <aside class="sticky top-0 z-30 hidden print:hidden h-screen w-24 shrink-0 flex-col items-center py-6 md:flex md:h-[calc(100vh-3rem)]">
             <a href="{{ route('dashboard') }}" class="mb-10 text-ink" aria-label="Warebase, ke dashboard">
                 <x-logo />
             </a>
@@ -47,13 +47,13 @@
 
             <form method="POST" action="{{ route('logout') }}" data-confirm="Sesi Anda akan diakhiri. Pekerjaan yang belum disimpan akan hilang." data-confirm-title="Keluar dari Warebase?" data-confirm-button="Ya, keluar">
                 @csrf
-                <button type="submit" class="flex size-11 items-center justify-center rounded-2xl bg-raised text-ink transition duration-150 hover:bg-rose/20 hover:text-danger active:scale-90" aria-label="Keluar">
+                <button type="submit" class="flex size-11 items-center justify-center rounded-2xl bg-rose/15 text-danger transition duration-150 hover:bg-rose/30 active:scale-90" aria-label="Keluar">
                     <x-icon name="logout" />
                 </button>
             </form>
         </aside>
 
-        <div class="flex min-w-0 flex-1 flex-col">
+        <div class="flex min-w-0 flex-1 flex-col md:border-l md:border-line/60">
             {{-- Top bar. --}}
             <header class="flex items-center gap-3 px-4 pt-4 print:hidden sm:px-6 md:pt-6">
                 <button type="button" class="icon-btn md:hidden" data-drawer-open aria-label="Buka menu" aria-controls="mobile-menu" aria-expanded="false">
@@ -99,6 +99,11 @@
     <x-form-modal />
     <x-confirm-dialog />
 
+    {{-- Chrome/Edge start loading a menu link while the pointer rests on it, so the click opens almost instantly. --}}
+    <script type="speculationrules">
+        {"prerender": [{"where": {"and": [{"href_matches": "/*"}, {"not": {"href_matches": "/*.csv"}}, {"not": {"selector_matches": "[data-form-modal]"}}]}, "eagerness": "moderate"}]}
+    </script>
+
     {{-- Mobile drawer. --}}
     <div id="mobile-menu" class="fixed inset-0 z-40 hidden md:hidden" data-drawer role="dialog" aria-modal="true" aria-label="Menu">
         <div class="absolute inset-0 bg-black/70" data-drawer-close></div>
@@ -122,7 +127,7 @@
             </div>
             <form method="POST" action="{{ route('logout') }}" data-confirm="Sesi Anda akan diakhiri. Pekerjaan yang belum disimpan akan hilang." data-confirm-title="Keluar dari Warebase?" data-confirm-button="Ya, keluar">
                 @csrf
-                <button type="submit" class="btn-secondary w-full"><x-icon name="logout" /> Keluar</button>
+                <button type="submit" class="btn-secondary w-full bg-rose/15 text-danger hover:bg-rose/30"><x-icon name="logout" /> Keluar</button>
             </form>
         </nav>
     </div>

@@ -68,8 +68,8 @@
                                 {{-- The free-text note is only shown to users who may open the transaction itself. --}}
                                 {{ $item->transaction->supplier?->name ?? $item->transaction->department?->name ?? ($url ? $item->transaction->note : $item->transaction->type->label()) }}
                             </td>
-                            <td class="px-5 py-4 text-right text-success">{{ $delta > 0 ? '+'.$delta : '' }}</td>
-                            <td class="px-5 py-4 text-right text-danger">{{ $delta < 0 ? '−'.abs($delta) : '' }}</td>
+                            <td @class(['px-5 py-4 text-right', $delta > 0 ? 'text-success' : 'text-subtle'])>{{ $delta > 0 ? '+'.$delta : '–' }}</td>
+                            <td @class(['px-5 py-4 text-right', $delta < 0 ? 'text-danger' : 'text-subtle'])>{{ $delta < 0 ? '−'.abs($delta) : '–' }}</td>
                             <td class="px-5 py-4 text-right font-semibold">{{ $item->stock_after }}</td>
                         </tr>
                     @empty

@@ -96,7 +96,10 @@
                 'bg-sun/15 hover:ring-sun/60' => $pending > 0,
                 'hover:ring-line' => $pending === 0,
             ])>
-                <span @class(['flex size-11 items-center justify-center rounded-full', 'bg-sun text-on-accent' => $pending > 0, 'bg-raised' => $pending === 0])><x-icon name="clipboard-list" /></span>
+                <div class="flex items-center gap-3">
+                    <span @class(['flex size-11 shrink-0 items-center justify-center rounded-full', 'bg-sun text-on-accent' => $pending > 0, 'bg-raised' => $pending === 0])><x-icon name="clipboard-list" /></span>
+                    <span class="text-sm font-medium text-muted">Persetujuan</span>
+                </div>
                 <p class="mt-auto text-4xl font-semibold sm:text-5xl">{{ $pending }} <span class="text-lg font-medium sm:text-2xl">permintaan</span></p>
                 <p class="mt-2 text-sm text-muted">
                     @if ($pending > 0)
@@ -112,7 +115,10 @@
                 'bg-sun/15 hover:ring-sun/60' => $low > 0,
                 'hover:ring-line' => $low === 0,
             ])>
-                <span @class(['flex size-11 items-center justify-center rounded-full', 'bg-sun text-on-accent' => $low > 0, 'bg-mint text-on-accent' => $low === 0])><x-icon :name="$low > 0 ? 'alert' : 'check'" /></span>
+                <div class="flex items-center gap-3">
+                    <span @class(['flex size-11 shrink-0 items-center justify-center rounded-full', 'bg-sun text-on-accent' => $low > 0, 'bg-mint text-on-accent' => $low === 0])><x-icon :name="$low > 0 ? 'alert' : 'check'" /></span>
+                    <span class="text-sm font-medium text-muted">Ketersediaan stok</span>
+                </div>
                 <p class="mt-auto text-4xl font-semibold sm:text-5xl">{{ $low }} <span class="text-lg font-medium sm:text-2xl">produk</span></p>
                 <p class="mt-2 text-sm text-muted">
                     @if ($low > 0)
@@ -171,7 +177,7 @@
                         @forelse ($recentTransactions as $transaction)
                             <tr>
                                 <td class="px-5 py-4">
-                                    <p class="font-semibold">{{ $transaction->code }}</p>
+                                    <p class="font-semibold whitespace-nowrap">{{ $transaction->code }}</p>
                                     <p class="text-xs text-subtle">{{ $transaction->transaction_date->translatedFormat('j M Y') }} · {{ $transaction->creator->name }}</p>
                                 </td>
                                 <td class="px-5 py-4"><x-type-badge :type="$transaction->type" /></td>

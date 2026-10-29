@@ -206,6 +206,12 @@
     }
 }
 
+/* Content being swapped by a filter or page change dims slightly; the delay keeps fast swaps from flickering. */
+main[aria-busy='true'] {
+    opacity: 0.6;
+    transition: opacity 150ms ease-out 150ms;
+}
+
 /* Theme toggle shows the icon of the theme it switches to. */
 :root[data-theme='dark'] .theme-icon-moon,
 :root[data-theme='light'] .theme-icon-sun {

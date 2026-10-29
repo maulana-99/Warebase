@@ -258,7 +258,11 @@ document.addEventListener('submit', async (event) => {
 
 // Phone layout for .table-stack tables: give each cell its column name so CSS can show it as a label.
 // Explicit ARIA roles keep the table readable by screen readers after CSS turns rows into blocks.
-document.querySelectorAll('table.table-stack').forEach((table) => {
+function initTables(root) {
+    root.querySelectorAll('table.table-stack').forEach(initTable);
+}
+
+function initTable(table) {
     table.setAttribute('role', 'table');
     table.querySelectorAll('thead, tbody, tfoot').forEach((group) => group.setAttribute('role', 'rowgroup'));
     table.querySelectorAll('tr').forEach((row) => row.setAttribute('role', 'row'));
@@ -275,4 +279,92 @@ document.querySelectorAll('table.table-stack').forEach((table) => {
             if (cell.colSpan === 1) cell.dataset.label = labels[index] ?? '';
         });
     });
+}
+
+initTables(document);
+
+// Filters, search and pagination swap only the page content instead of reloading the whole page,
+// so CSS, fonts and the layout stay put. Anything unexpected falls back to a normal navigation.
+const main = document.getElementById('main');
+let swapController = null;
+let currentUrl = window.location.pathname + window.location.search;
+
+async function swapMain(url, { push = true, keepFocus = false } = {}) {
+    swapController?.abort();
+    const controller = (swapController = new AbortController());
+    const focused = keepFocus && document.activeElement?.id ? document.activeElement : null;
+    const caret = focused?.selectionStart ?? null;
+    main.setAttribute('aria-busy', 'true');
+
+    try {
+        const response = await fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            signal: controller.signal,
+        });
+        // A redirect (e.g. session expired) or an error page is better shown as a full page.
+        if (!response.ok || response.redirected) throw new Error();
+        const page = new DOMParser().parseFromString(await response.text(), 'text/html');
+        const next = page.getElementById('main');
+        if (!next) throw new Error();
+
+        main.replaceChildren(...[...next.childNodes].map((node) => document.adoptNode(node)));
+        document.title = page.title;
+        if (push) history.pushState({ swap: true }, '', url);
+        currentUrl = window.location.pathname + window.location.search;
+        initTables(main);
+        initItemRows(main);
+
+        const again = focused && document.getElementById(focused.id);
+        if (again) {
+            // Keep what the user typed while the request was running; the pending debounce submits it.
+            if ('value' in again) again.value = focused.value;
+            again.focus();
+            if (caret !== null) again.setSelectionRange?.(caret, caret);
+        }
+    } catch (error) {
+        if (error.name !== 'AbortError') window.location.href = url;
+    } finally {
+        // A newer swap that aborted this one still owns the busy state.
+        if (swapController === controller) main.removeAttribute('aria-busy');
+    }
+}
+
+function formUrl(form) {
+    const url = new URL(form.action || window.location.href);
+    // Empty fields are left out so the URL only shows filters that are in use.
+    url.search = new URLSearchParams([...new FormData(form)].filter(([, value]) => value !== '')).toString();
+    return url.href;
+}
+
+document.addEventListener('submit', (event) => {
+    const form = event.target;
+    if (event.defaultPrevented || !main?.contains(form) || form.method.toLowerCase() !== 'get') return;
+    event.preventDefault();
+    swapMain(formUrl(form), { keepFocus: true });
+});
+
+main?.addEventListener('click', (event) => {
+    const link = event.target.closest('a[rel="prev"], a[rel="next"]');
+    if (!link || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    event.preventDefault();
+    swapMain(link.href);
+    main.focus({ preventScroll: true });
+    main.scrollIntoView({ block: 'start' });
+});
+
+// Typing in a search box filters after a short pause, without pressing Enter.
+let searchTimer;
+main?.addEventListener('input', (event) => {
+    const input = event.target;
+    if (input.type !== 'search' || !input.form || input.form.method.toLowerCase() !== 'get') return;
+    clearTimeout(searchTimer);
+    // Look the input up again when the timer fires: a swap in between replaces the element.
+    searchTimer = setTimeout(() => (document.getElementById(input.id) ?? input).form?.requestSubmit(), 350);
+});
+
+// Back/forward through swapped pages reloads the content for that URL.
+window.addEventListener('popstate', () => {
+    // A change of only the #fragment needs no new content.
+    if (!main || window.location.pathname + window.location.search === currentUrl) return;
+    swapMain(window.location.href, { push: false });
 });

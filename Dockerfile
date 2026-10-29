@@ -8,7 +8,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends libicu-dev libzip-dev unzip \
     && docker-php-ext-install pdo_mysql intl zip bcmath \
     && rm -rf /var/lib/apt/lists/* \
-    && a2enmod rewrite headers
+    && a2enmod rewrite headers deflate
 COPY docker/php/production.ini /usr/local/etc/php/conf.d/zz-production.ini
 COPY docker/apache/warebase.conf /etc/apache2/sites-available/000-default.conf
 COPY docker/apache/security.conf /etc/apache2/conf-available/zz-security.conf

@@ -99,6 +99,11 @@
     <x-form-modal />
     <x-confirm-dialog />
 
+    {{-- Chrome/Edge start loading a menu link while the pointer rests on it, so the click opens almost instantly. --}}
+    <script type="speculationrules">
+        {"prerender": [{"where": {"and": [{"href_matches": "/*"}, {"not": {"href_matches": "/*.csv"}}, {"not": {"selector_matches": "[data-form-modal]"}}]}, "eagerness": "moderate"}]}
+    </script>
+
     {{-- Mobile drawer. --}}
     <div id="mobile-menu" class="fixed inset-0 z-40 hidden md:hidden" data-drawer role="dialog" aria-modal="true" aria-label="Menu">
         <div class="absolute inset-0 bg-black/70" data-drawer-close></div>

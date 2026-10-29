@@ -21,7 +21,7 @@
                 <tbody class="divide-y divide-line">
                     @forelse ($transactions as $transaction)
                         <tr class="transition hover:bg-raised/40">
-                            <td class="px-5 py-4 font-semibold">{{ $transaction->code }}</td>
+                            <td class="px-5 py-4 font-semibold whitespace-nowrap">{{ $transaction->code }}</td>
                             <td class="px-5 py-4 text-muted">{{ $transaction->transaction_date->translatedFormat('j M Y') }}</td>
                             <td class="px-5 py-4">{{ $transaction->items_count }}</td>
                             <td class="max-w-xs truncate px-5 py-4 text-muted">{{ $transaction->note }}</td>

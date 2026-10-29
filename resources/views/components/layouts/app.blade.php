@@ -24,7 +24,7 @@
 
     <div data-app-shell class="flex min-h-screen bg-shell md:min-h-[calc(100vh-3rem)] md:rounded-[2rem]">
         {{-- Desktop: icon rail. --}}
-        <aside class="sticky top-0 z-30 hidden print:hidden h-screen w-24 shrink-0 flex-col items-center border-r border-line/60 py-6 md:flex md:h-[calc(100vh-3rem)]">
+        <aside class="sticky top-0 z-30 hidden print:hidden h-screen w-24 shrink-0 flex-col items-center py-6 md:flex md:h-[calc(100vh-3rem)]">
             <a href="{{ route('dashboard') }}" class="mb-10 text-ink" aria-label="Warebase, ke dashboard">
                 <x-logo />
             </a>
@@ -53,7 +53,7 @@
             </form>
         </aside>
 
-        <div class="flex min-w-0 flex-1 flex-col">
+        <div class="flex min-w-0 flex-1 flex-col md:border-l md:border-line/60">
             {{-- Top bar. --}}
             <header class="flex items-center gap-3 px-4 pt-4 print:hidden sm:px-6 md:pt-6">
                 <button type="button" class="icon-btn md:hidden" data-drawer-open aria-label="Buka menu" aria-controls="mobile-menu" aria-expanded="false">

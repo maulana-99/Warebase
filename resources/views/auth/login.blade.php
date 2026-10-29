@@ -20,7 +20,7 @@
         </div>
 
         <label class="flex items-center gap-2 text-sm text-muted">
-            <input type="checkbox" name="remember" value="1" class="size-4 rounded accent-sky" @checked(old('remember'))>
+            <input type="checkbox" name="remember" value="1" @checked(old('remember'))>
             Ingat saya
         </label>
 

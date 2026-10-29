@@ -124,7 +124,61 @@
     }
 
     .badge {
-        @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;
+        @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap;
+    }
+
+    /* Native controls restyled so no browser default look leaks through. */
+    select.input {
+        @apply appearance-none bg-no-repeat pr-11;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a8a94' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-position: right 1rem center;
+        background-size: 1rem;
+    }
+
+    textarea.input {
+        @apply min-h-24 resize-y;
+    }
+
+    input[type='date'].input::-webkit-calendar-picker-indicator {
+        @apply cursor-pointer rounded-md p-0.5 opacity-60 transition hover:opacity-100;
+    }
+
+    input[type='number'].input {
+        appearance: textfield;
+    }
+
+    input[type='number'].input::-webkit-inner-spin-button,
+    input[type='number'].input::-webkit-outer-spin-button {
+        appearance: none;
+        margin: 0;
+    }
+
+    input[type='checkbox'] {
+        @apply size-5 shrink-0 appearance-none rounded-md border-2 border-subtle bg-raised bg-center bg-no-repeat transition checked:border-ink checked:bg-ink;
+        background-size: 0.875rem;
+    }
+
+    /* The check mark takes the shell color so it reads on the ink fill in both themes. */
+    input[type='checkbox']:checked {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23050506' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+    }
+
+    /* Radio: a thick ring around the shell color reads as the selected dot. */
+    input[type='radio'] {
+        @apply size-5 shrink-0 appearance-none rounded-full border-2 border-subtle bg-raised transition checked:border-[6px] checked:border-ink checked:bg-shell disabled:opacity-50;
+    }
+
+    /* High-contrast mode drops background images and custom fills, so mark the checked state with system colors. */
+    @media (forced-colors: active) {
+        input[type='checkbox']:checked,
+        input[type='radio']:checked {
+            background-color: Highlight;
+            border-color: Highlight;
+        }
+    }
+
+    :root[data-theme='light'] input[type='checkbox']:checked {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
     }
 }
 
@@ -214,6 +268,16 @@
     .table-stack td[data-label=''] > div {
         justify-content: flex-end;
         margin-top: 0.25rem;
+    }
+
+    /* Flex content (badge + text) lines up on the right like every other value. */
+    .table-stack td:not(:first-child) > .flex {
+        justify-content: flex-end;
+    }
+
+    /* A row of action buttons explains itself; drop the "Aksi" label and its empty left half. */
+    .table-stack td:last-child:has(.icon-btn)::before {
+        content: none;
     }
 
     .table-stack td[data-label='']:last-child {

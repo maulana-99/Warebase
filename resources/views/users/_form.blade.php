@@ -20,7 +20,7 @@
         <div class="grid gap-3 sm:grid-cols-2">
             @foreach (\App\Enums\Role::cases() as $role)
                 <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-line bg-raised p-4 has-checked:border-sky">
-                    <input type="radio" name="role" value="{{ $role->value }}" class="mt-1 accent-sky"
+                    <input type="radio" name="role" value="{{ $role->value }}" class="mt-0.5"
                            @checked(old('role', $user->role?->value) === $role->value)
                            @disabled($editing && $user->is(auth()->user()))>
                     <span>

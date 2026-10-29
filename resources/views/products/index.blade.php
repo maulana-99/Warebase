@@ -15,7 +15,7 @@
             </select>
         </div>
         <label class="flex cursor-pointer items-center gap-2 text-sm">
-            <input type="checkbox" name="low" value="1" class="accent-sky" @checked($lowOnly) onchange="this.form.requestSubmit()">
+            <input type="checkbox" name="low" value="1" @checked($lowOnly) onchange="this.form.requestSubmit()">
             Stok menipis saja
         </label>
         <button type="submit" class="btn-secondary">Terapkan</button>

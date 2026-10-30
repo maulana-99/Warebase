@@ -3,6 +3,13 @@
 use Illuminate\Support\Str;
 use Pdo\Mysql;
 
+// PHP 8.4+ has Pdo\Mysql; PHP 8.3 (Wasmer) only has the PDO::MYSQL_ATTR_* constants.
+$mysqlSslCa = $mysqlSslVerify = null;
+if (extension_loaded('pdo_mysql')) {
+    $mysqlSslCa = class_exists(Mysql::class) ? Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA;
+    $mysqlSslVerify = class_exists(Mysql::class) ? Mysql::ATTR_SSL_VERIFY_SERVER_CERT : PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT;
+}
+
 return [
 
     /*
@@ -49,7 +56,8 @@ return [
             'url' => env('DB_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'laravel'),
+            // Wasmer injects DB_NAME; Dokploy and local use DB_DATABASE.
+            'database' => env('DB_DATABASE', env('DB_NAME', 'laravel')),
             'username' => env('DB_USERNAME', 'root'),
             'password' => env('DB_PASSWORD', ''),
             'unix_socket' => env('DB_SOCKET', ''),
@@ -60,8 +68,10 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                Mysql::ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
+                $mysqlSslCa => env('MYSQL_ATTR_SSL_CA'),
+                // Wasmer's managed MySQL requires TLS with a private CA: encrypt, but skip chain verification.
+                $mysqlSslVerify => env('DB_SSL_VERIFY', true) ? null : false,
+            ], fn ($v) => $v !== null) : [],
         ],
 
         'mariadb' => [
